@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.omnibot.tv;
+package xyz.nickr.telegram.tvchatbot.tv;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

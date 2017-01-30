@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.omnibot.tv;
+package xyz.nickr.telegram.tvchatbot.tv;
 
 import com.mongodb.client.MongoCollection;
 import java.util.Arrays;
@@ -7,7 +7,7 @@ import lombok.Getter;
 import org.bson.Document;
 import xyz.nickr.jomdb.model.SeasonResult;
 import xyz.nickr.jomdb.model.TitleResult;
-import xyz.nickr.telegram.omnibot.OmniBot;
+import xyz.nickr.telegram.tvchatbot.TvChatBot;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -27,7 +27,7 @@ public class Series {
         this.name = name;
         this.seasons = seasons;
 
-        OmniBot.getExecutor().submit(this::update);
+        TvChatBot.getExecutor().submit(this::update);
     }
 
     public Series(String id) {
@@ -47,7 +47,7 @@ public class Series {
     }
 
     public void update() {
-        TitleResult titleResult = OmniBot.getOmdb().titleById(id);
+        TitleResult titleResult = TvChatBot.getOmdb().titleById(id);
 
         if (!"series".equals(titleResult.getType()))
             throw new IllegalArgumentException(id + " is a " + titleResult.getType() + " not a series!");
@@ -59,8 +59,8 @@ public class Series {
             this.seasons[i++] = new Season(seasonResult);
         }
 
-        OmniBot.getExecutor().submit(() -> {
-            MongoCollection<Document> collection = OmniBot.getMongoController().getCollection("shows");
+        TvChatBot.getExecutor().submit(() -> {
+            MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("shows");
 
             Document document = this.toDocument();
             Document existing = collection.find(eq("id", id)).first();

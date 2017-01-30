@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.omnibot.tv;
+package xyz.nickr.telegram.tvchatbot.tv;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.bson.Document;
 import pro.zackpollard.telegrambot.api.user.User;
-import xyz.nickr.telegram.omnibot.OmniBot;
+import xyz.nickr.telegram.tvchatbot.TvChatBot;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -17,7 +17,7 @@ import static com.mongodb.client.model.Filters.eq;
 public class ProgressController {
 
     public Map<String, String> getProgress(User user) {
-        MongoCollection<Document> collection = OmniBot.getMongoController().getCollection("progress");
+        MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("progress");
 
         Map<String, String> progress = new HashMap<>();
         try (MongoCursor<Document> cursor = collection.find(eq("user", user.getId())).iterator()) {
@@ -34,7 +34,7 @@ public class ProgressController {
     }
 
     public String getProgress(User user, String id) {
-        MongoCollection<Document> collection = OmniBot.getMongoController().getCollection("progress");
+        MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("progress");
 
         Document document = collection.find(and(eq("id", id), eq("user", user.getId()))).first();
 
@@ -42,7 +42,7 @@ public class ProgressController {
     }
 
     public void setProgress(User user, String id, String progress) {
-        MongoCollection<Document> collection = OmniBot.getMongoController().getCollection("progress");
+        MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("progress");
 
         Document doc = new Document()
                 .append("id", id)

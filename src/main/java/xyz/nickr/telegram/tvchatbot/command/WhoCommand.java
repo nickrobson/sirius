@@ -1,12 +1,11 @@
-package xyz.nickr.telegram.omnibot.command;
+package xyz.nickr.telegram.tvchatbot.command;
 
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.ParseMode;
-import xyz.nickr.telegram.omnibot.OmniBot;
-import xyz.nickr.telegram.omnibot.tv.Series;
+import xyz.nickr.telegram.tvchatbot.TvChatBot;
 import xyz.nickr.telepad.TelepadBot;
 import xyz.nickr.telepad.command.Command;
 import xyz.nickr.telepad.util.PaginatedData;
@@ -23,11 +22,11 @@ public class WhoCommand extends Command {
 
     @Override
     public void exec(TelepadBot bot, Message message, String[] args) {
-        Map<String, String> progress = OmniBot.getProgressController().getProgress(message.getSender());
+        Map<String, String> progress = TvChatBot.getProgressController().getProgress(message.getSender());
 
         List<String> lines = new LinkedList<>();
         for (Map.Entry<String, String> entry : progress.entrySet()) {
-            String seriesName = OmniBot.getSeriesController().getSeriesName(entry.getKey());
+            String seriesName = TvChatBot.getSeriesController().getSeriesName(entry.getKey());
             lines.add(String.format("*%s*: %s", escape(seriesName), escape(entry.getValue())));
         }
         lines.sort(String.CASE_INSENSITIVE_ORDER);

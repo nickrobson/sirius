@@ -6,7 +6,7 @@ import pymongo
 import traceback
 
 client = pymongo.MongoClient()
-db = client['omnibot']
+db = client['tvchatbot']
 
 with open('shows.json', 'r') as f:
     data = json.loads(f.read())

@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.omnibot.command;
+package xyz.nickr.telegram.tvchatbot.command;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -7,7 +7,7 @@ import java.util.List;
 import org.bson.Document;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.ParseMode;
-import xyz.nickr.telegram.omnibot.OmniBot;
+import xyz.nickr.telegram.tvchatbot.TvChatBot;
 import xyz.nickr.telepad.TelepadBot;
 import xyz.nickr.telepad.command.Command;
 import xyz.nickr.telepad.util.PaginatedData;
@@ -24,7 +24,7 @@ public class ShowsCommand extends Command {
 
     @Override
     public void exec(TelepadBot bot, Message message, String[] args) {
-        MongoCollection<Document> showsCollection = OmniBot.getMongoController().getCollection("shows");
+        MongoCollection<Document> showsCollection = TvChatBot.getMongoController().getCollection("shows");
 
         List<String> lines = new LinkedList<>();
         try (MongoCursor<Document> cursor = showsCollection.find().iterator()) {

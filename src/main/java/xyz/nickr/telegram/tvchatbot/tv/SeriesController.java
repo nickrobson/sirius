@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.omnibot.tv;
+package xyz.nickr.telegram.tvchatbot.tv;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.bson.Document;
-import xyz.nickr.telegram.omnibot.OmniBot;
+import xyz.nickr.telegram.tvchatbot.TvChatBot;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -20,8 +20,8 @@ public class SeriesController {
     private final Map<String, String> seriesNamesMap = Collections.synchronizedMap(new HashMap<>());
 
     public SeriesController() {
-        OmniBot.getExecutor().submit(() -> {
-            MongoCollection<Document> collection = OmniBot.getMongoController().getCollection("shows");
+        TvChatBot.getExecutor().submit(() -> {
+            MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("shows");
 
             try (MongoCursor<Document> cursor = collection.find().iterator()) {
                 while (cursor.hasNext()) {
@@ -64,7 +64,7 @@ public class SeriesController {
     }
 
     public Series getSeriesByLink(String link) {
-        MongoCollection<Document> collection = OmniBot.getMongoController().getCollection("shows");
+        MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("shows");
 
         Document doc = collection.find(eq("links", link)).first();
 
@@ -80,13 +80,13 @@ public class SeriesController {
         if (series != null)
             return series.getName();
 
-        MongoCollection<Document> collection = OmniBot.getMongoController().getCollection("shows");
+        MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("shows");
 
         Document document = collection.find(eq("id", id)).first();
         if (document == null) {
             return getSeries(id, true).getName();
         }
-        OmniBot.getExecutor().submit(() -> getSeries(id, true));
+        TvChatBot.getExecutor().submit(() -> getSeries(id, true));
         return document.getString("name");
     }
 }

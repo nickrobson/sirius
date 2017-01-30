@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>xyz.nickr.telegram</groupId>
-    <artifactId>omnibot</artifactId>
-    <version>0.0.1</version>
-    <name>omnibot</name>
+    <artifactId>tvchatbot</artifactId>
+    <version>0.0.2</version>
+    <name>tvchatbot</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

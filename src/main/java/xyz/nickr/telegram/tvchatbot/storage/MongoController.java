@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.omnibot.storage;
+package xyz.nickr.telegram.tvchatbot.storage;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -11,12 +11,12 @@ import org.bson.Document;
  */
 public class MongoController {
 
-    @Getter private MongoClient client;
-    @Getter private MongoDatabase database;
+    @Getter private final MongoClient client;
+    @Getter private final MongoDatabase database;
 
     public MongoController() {
         this.client = new MongoClient();
-        this.database = client.getDatabase("omnibot");
+        this.database = client.getDatabase("tvchatbot");
     }
 
     public MongoCollection<Document> getCollection(String name) {

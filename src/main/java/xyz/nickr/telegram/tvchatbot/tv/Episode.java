@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.omnibot.tv;
+package xyz.nickr.telegram.tvchatbot.tv;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
