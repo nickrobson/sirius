@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.tvchatbot.tv;
+package xyz.nickr.telegram.sirius.tv;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

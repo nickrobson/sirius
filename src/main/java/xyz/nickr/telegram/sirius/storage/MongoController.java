@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.tvchatbot.storage;
+package xyz.nickr.telegram.sirius.storage;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -16,7 +16,7 @@ public class MongoController {
 
     public MongoController() {
         this.client = new MongoClient();
-        this.database = client.getDatabase("tvchatbot");
+        this.database = client.getDatabase("sirius");
     }
 
     public MongoCollection<Document> getCollection(String name) {

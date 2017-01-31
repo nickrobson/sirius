@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.tvchatbot.tv;
+package xyz.nickr.telegram.sirius.tv;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.bson.Document;
 import pro.zackpollard.telegrambot.api.user.User;
-import xyz.nickr.telegram.tvchatbot.TvChatBot;
+import xyz.nickr.telegram.sirius.Sirius;
 
 import static com.mongodb.client.model.Filters.and;
 import static com.mongodb.client.model.Filters.eq;
@@ -18,7 +18,7 @@ import static com.mongodb.client.model.Filters.eq;
 public class ProgressController {
 
     public Map<String, String> getProgress(User user) {
-        MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("progress");
+        MongoCollection<Document> collection = Sirius.getMongoController().getCollection("progress");
 
         Map<String, String> progress = new HashMap<>();
         try (MongoCursor<Document> cursor = collection.find(eq("user", user.getId())).projection(Projections.include("id", "episode")).iterator()) {
@@ -35,7 +35,7 @@ public class ProgressController {
     }
 
     public String getProgress(User user, String id) {
-        MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("progress");
+        MongoCollection<Document> collection = Sirius.getMongoController().getCollection("progress");
 
         Document document = collection.find(and(eq("id", id), eq("user", user.getId()))).projection(Projections.include("episode")).first();
 
@@ -43,7 +43,7 @@ public class ProgressController {
     }
 
     public void setProgress(User user, String id, String progress) {
-        MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("progress");
+        MongoCollection<Document> collection = Sirius.getMongoController().getCollection("progress");
 
         Document doc = new Document()
                 .append("id", id)

@@ -1,15 +1,14 @@
-package xyz.nickr.telegram.tvchatbot.tv;
+package xyz.nickr.telegram.sirius.tv;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Projections;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import org.bson.Document;
-import xyz.nickr.telegram.tvchatbot.TvChatBot;
+import xyz.nickr.telegram.sirius.Sirius;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -22,8 +21,8 @@ public class SeriesController {
     private final Map<String, String> seriesNamesMap = Collections.synchronizedMap(new HashMap<>());
 
     public SeriesController() {
-        TvChatBot.getExecutor().submit(() -> {
-            MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("shows");
+        Sirius.getExecutor().submit(() -> {
+            MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
             try (MongoCursor<Document> cursor = collection.find().iterator()) {
                 while (cursor.hasNext()) {
@@ -87,7 +86,7 @@ public class SeriesController {
     }
 
     public Series getSeriesByLink(String link) {
-        MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("shows");
+        MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
         Document doc = collection.find(eq("links", link)).first();
 
@@ -103,20 +102,20 @@ public class SeriesController {
         if (series != null)
             return series.getName();
 
-        MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("shows");
+        MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
         Document document = collection.find(eq("id", id)).first();
         if (document == null) {
             return getSeries(id, true).getName();
         }
-        TvChatBot.getExecutor().submit(() -> getSeries(id, true));
+        Sirius.getExecutor().submit(() -> getSeries(id, true));
         return document.getString("name");
     }
 
     public Map<String,List<String>> getSeriesLinks() {
         Map<String,List<String>> map = new HashMap<>();
 
-        MongoCollection<Document> showsCollection = TvChatBot.getMongoController().getCollection("shows");
+        MongoCollection<Document> showsCollection = Sirius.getMongoController().getCollection("shows");
 
         try (MongoCursor<Document> cursor = showsCollection.find().projection(Projections.include("name", "links")).iterator()) {
             while (cursor.hasNext()) {

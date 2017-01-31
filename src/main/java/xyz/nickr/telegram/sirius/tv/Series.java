@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.tvchatbot.tv;
+package xyz.nickr.telegram.sirius.tv;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Projections;
@@ -8,7 +8,7 @@ import lombok.Getter;
 import org.bson.Document;
 import xyz.nickr.jomdb.model.SeasonResult;
 import xyz.nickr.jomdb.model.TitleResult;
-import xyz.nickr.telegram.tvchatbot.TvChatBot;
+import xyz.nickr.telegram.sirius.Sirius;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -59,7 +59,7 @@ public class Series {
         this.runtime = runtime;
         this.year = year;
 
-        TvChatBot.getExecutor().submit(this::update);
+        Sirius.getExecutor().submit(this::update);
     }
 
     public Series(String id) {
@@ -93,7 +93,7 @@ public class Series {
     }
 
     public void update() {
-        TitleResult titleResult = TvChatBot.getOmdb().titleById(id);
+        TitleResult titleResult = Sirius.getOmdb().titleById(id);
 
         if (!"series".equals(titleResult.getType()))
             throw new IllegalArgumentException(id + " is a " + titleResult.getType() + " not a series!");
@@ -120,8 +120,8 @@ public class Series {
             this.seasons[i++] = new Season(seasonResult);
         }
 
-        TvChatBot.getExecutor().submit(() -> {
-            MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("shows");
+        Sirius.getExecutor().submit(() -> {
+            MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
             Document document = this.toDocument();
             Document existing = collection.find(eq("id", id)).projection(Projections.include("schema", "links")).first();
@@ -133,13 +133,22 @@ public class Series {
             if (existing == null) {
                 System.out.println("Inserting database series model for id: " + id);
                 collection.insertOne(document);
-            } else if (existing.getInteger("schema", 0) != document.getInteger("schema", 1)) {
-                System.out.println("Updating database series model for id: " + id);
-                System.out.println("Migrating from:");
-                System.out.println(existing);
-                System.out.println("to:");
-                System.out.println(document);
-                collection.replaceOne(eq("id", id), document);
+            } else {
+                int oldSchema = existing.getInteger("schema", 0);
+                int newSchema = document.getInteger("schema", 1);
+                if (oldSchema < newSchema) {
+                    System.out.println(
+                            "Updating database series model for id: " + id + "\n" +
+                                    "from: " + existing + "\n" +
+                                    "to: " + document
+                    );
+                    collection.replaceOne(eq("id", id), document);
+                } else if (oldSchema > newSchema) {
+                    System.err.format(
+                            "[ERROR] Found newer schema in database than in code. Invalid database model?\n" +
+                                    "database: %s, code: %s\n", oldSchema, newSchema
+                    );
+                }
             }
         });
     }

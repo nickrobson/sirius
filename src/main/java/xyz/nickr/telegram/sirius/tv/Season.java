@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.tvchatbot.tv;
+package xyz.nickr.telegram.sirius.tv;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;

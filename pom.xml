@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>xyz.nickr.telegram</groupId>
-    <artifactId>tvchatbot</artifactId>
+    <artifactId>sirius</artifactId>
     <version>0.0.2</version>
-    <name>tvchatbot</name>
+    <name>Sirius</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

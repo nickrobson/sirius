@@ -1,11 +1,11 @@
-package xyz.nickr.telegram.tvchatbot.storage;
+package xyz.nickr.telegram.sirius.storage;
 
 import com.mongodb.client.MongoCollection;
 import java.util.List;
 import java.util.function.BiPredicate;
 import org.bson.Document;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
-import xyz.nickr.telegram.tvchatbot.TvChatBot;
+import xyz.nickr.telegram.sirius.Sirius;
 
 import static com.mongodb.client.model.Filters.eq;
 
@@ -17,7 +17,7 @@ public class MongoPermissionPredicate implements BiPredicate<Message, String> {
     private MongoCollection<Document> collection;
 
     public MongoPermissionPredicate() {
-        collection = TvChatBot.getMongoController().getCollection("permissions");
+        collection = Sirius.getMongoController().getCollection("permissions");
     }
 
     @Override
