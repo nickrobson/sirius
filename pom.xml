@@ -6,7 +6,7 @@
 
     <groupId>xyz.nickr.telegram</groupId>
     <artifactId>sirius</artifactId>
-    <version>0.0.3</version>
+    <version>0.0.4</version>
     <name>Sirius</name>
 
     <properties>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>xyz.nickr.telegram</groupId>
             <artifactId>telepad</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>xyz.nickr</groupId>
@@ -34,6 +34,11 @@
             <artifactId>lombok</artifactId>
             <version>1.16.12</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongodb-driver</artifactId>
+            <version>3.4.2</version>
         </dependency>
     </dependencies>
 
