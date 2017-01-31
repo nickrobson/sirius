@@ -30,7 +30,6 @@ public class Season {
     public Document toDocument() {
         return new Document()
                 .append("id", id)
-                .append("schema", 1)
                 .append("episodes", Arrays.stream(this.episodes)
                         .map(Episode::toDocument)
                         .collect(Collectors.toList()));

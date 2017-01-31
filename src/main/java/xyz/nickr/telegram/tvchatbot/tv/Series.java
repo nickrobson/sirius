@@ -1,6 +1,7 @@
 package xyz.nickr.telegram.tvchatbot.tv;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Projections;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -21,11 +22,42 @@ public class Series {
     private String name;
     private Season[] seasons;
 
-    public Series(String id, String name, Season[] seasons) {
+    private String genre;
+    private String actors;
+    private String writer;
+    private String director;
+    private String awards;
+    private String country;
+    private String type;
+    private String rating;
+    private String votes;
+    private String language;
+    private String metascore;
+    private String plot;
+    private String poster;
+    private String runtime;
+    private String year;
+
+    public Series(String id, String name, Season[] seasons, String genre, String actors,  String writer,  String director,  String awards,  String country,  String type,  String rating,  String votes,  String language,  String metascore,  String plot,  String poster,  String runtime,  String year) {
         System.out.println("Invoked new Series(" + id + ", " + name + ", [..seasons..])");
         this.id = id;
         this.name = name;
         this.seasons = seasons;
+        this.genre = genre;
+        this.actors = actors;
+        this.writer = writer;
+        this.director = director;
+        this.awards = awards;
+        this.country = country;
+        this.type = type;
+        this.rating = rating;
+        this.votes = votes;
+        this.language = language;
+        this.metascore = metascore;
+        this.plot = plot;
+        this.poster = poster;
+        this.runtime = runtime;
+        this.year = year;
 
         TvChatBot.getExecutor().submit(this::update);
     }
@@ -37,10 +69,24 @@ public class Series {
     }
 
     public Document toDocument() {
-        return new Document()
+        return new Document("schema", 4)
                 .append("id", id)
                 .append("name", name)
-                .append("schema", 1)
+                .append("genre", genre)
+                .append("actors", actors)
+                .append("writer", writer)
+                .append("director", director)
+                .append("awards", awards)
+                .append("country", country)
+                .append("type", type)
+                .append("rating", rating)
+                .append("votes", votes)
+                .append("language", language)
+                .append("metascore", metascore)
+                .append("plot", plot)
+                .append("poster", poster)
+                .append("runtime", runtime)
+                .append("year", year)
                 .append("seasons", Arrays.stream(this.seasons)
                         .map(Season::toDocument)
                         .collect(Collectors.toList()));
@@ -53,6 +99,21 @@ public class Series {
             throw new IllegalArgumentException(id + " is a " + titleResult.getType() + " not a series!");
 
         this.name = titleResult.getTitle();
+        this.genre = titleResult.getGenre();
+        this.actors = titleResult.getActors();
+        this.writer = titleResult.getWriter();
+        this.director = titleResult.getDirector();
+        this.awards = titleResult.getAwards();
+        this.country = titleResult.getCountry();
+        this.type = titleResult.getType();
+        this.rating = titleResult.getImdbRating();
+        this.votes = titleResult.getImdbVotes();
+        this.language = titleResult.getLanguage();
+        this.metascore = titleResult.getMetascore();
+        this.plot = titleResult.getPlot();
+        this.poster = titleResult.getPoster();
+        this.runtime = titleResult.getRuntime();
+        this.year = titleResult.getYear();
         this.seasons = new Season[titleResult.getTotalSeasons()];
         int i = 0;
         for (SeasonResult seasonResult : titleResult) {
@@ -63,17 +124,16 @@ public class Series {
             MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("shows");
 
             Document document = this.toDocument();
-            Document existing = collection.find(eq("id", id)).first();
+            Document existing = collection.find(eq("id", id)).projection(Projections.include("schema", "links")).first();
 
             if (existing != null) {
-                existing.remove("_id"); // the database one will (of course) have an id field; the generated one won't.
                 document.append("links", existing.get("links")); // we want to keep the links array
             }
 
             if (existing == null) {
                 System.out.println("Inserting database series model for id: " + id);
                 collection.insertOne(document);
-            } else if (!existing.equals(document)) {
+            } else if (existing.getInteger("schema", 0) != document.getInteger("schema", 1)) {
                 System.out.println("Updating database series model for id: " + id);
                 System.out.println("Migrating from:");
                 System.out.println(existing);

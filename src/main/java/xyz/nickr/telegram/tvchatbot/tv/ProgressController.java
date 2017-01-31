@@ -2,6 +2,7 @@ package xyz.nickr.telegram.tvchatbot.tv;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Projections;
 import java.util.HashMap;
 import java.util.Map;
 import org.bson.Document;
@@ -20,7 +21,7 @@ public class ProgressController {
         MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("progress");
 
         Map<String, String> progress = new HashMap<>();
-        try (MongoCursor<Document> cursor = collection.find(eq("user", user.getId())).iterator()) {
+        try (MongoCursor<Document> cursor = collection.find(eq("user", user.getId())).projection(Projections.include("id", "episode")).iterator()) {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
 
@@ -36,7 +37,7 @@ public class ProgressController {
     public String getProgress(User user, String id) {
         MongoCollection<Document> collection = TvChatBot.getMongoController().getCollection("progress");
 
-        Document document = collection.find(and(eq("id", id), eq("user", user.getId()))).first();
+        Document document = collection.find(and(eq("id", id), eq("user", user.getId()))).projection(Projections.include("episode")).first();
 
         return document != null ? document.getString("episode") : null;
     }
