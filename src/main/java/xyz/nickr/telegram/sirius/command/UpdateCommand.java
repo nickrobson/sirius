@@ -118,7 +118,10 @@ public class UpdateCommand extends Command {
                 }
                 File jarFile = matching[0];
                 Files.copy(jarFile.toPath(), new File("sirius.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
+                message.getChat().sendMessage(SendableTextMessage.plain("Restarting!").replyTo(message).build());
                 System.exit(0);
+            } else {
+                message.getChat().sendMessage(SendableTextMessage.plain("build/target isn't a directory!").replyTo(message).build());
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e.getMessage(), e);
