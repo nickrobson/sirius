@@ -5,4 +5,7 @@
 *.iml
 *.class
 *.jar
+
 /dist/
+/build/
+/.version

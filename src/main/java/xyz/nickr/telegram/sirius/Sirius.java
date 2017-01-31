@@ -6,6 +6,8 @@ import lombok.Getter;
 import xyz.nickr.jomdb.JavaOMDB;
 import xyz.nickr.telegram.sirius.command.ProgressCommand;
 import xyz.nickr.telegram.sirius.command.ShowsCommand;
+import xyz.nickr.telegram.sirius.command.SourceCommand;
+import xyz.nickr.telegram.sirius.command.UpdateCommand;
 import xyz.nickr.telegram.sirius.command.WhoCommand;
 import xyz.nickr.telegram.sirius.storage.MongoController;
 import xyz.nickr.telegram.sirius.storage.MongoPermissionPredicate;
@@ -53,6 +55,9 @@ public class Sirius {
         manager.register(new WhoCommand());
         manager.register(new ShowsCommand());
         manager.register(new ProgressCommand());
+
+        manager.register(new SourceCommand());
+        manager.register(new UpdateCommand());
     }
 
 }

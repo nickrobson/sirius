@@ -6,7 +6,7 @@
 
     <groupId>xyz.nickr.telegram</groupId>
     <artifactId>sirius</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <name>Sirius</name>
 
     <properties>
@@ -33,6 +33,7 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.16.12</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -51,14 +52,23 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.4.3</version>
-                <configuration>
-                    <minimizeJar>true</minimizeJar>
-                    <transformers>
-                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                            <mainClass>xyz.nickr.tele</mainClass>
-                        </transformer>
-                    </transformers>
-                </configuration>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <minimizeJar>true</minimizeJar>
+                            <finalName>${project.artifactId}-${project.version}-with-dependencies</finalName>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>xyz.nickr.telegram.sirius.Sirius</mainClass>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
