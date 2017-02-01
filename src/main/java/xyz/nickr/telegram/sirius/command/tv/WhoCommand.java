@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.sirius.command;
+package xyz.nickr.telegram.sirius.command.tv;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -13,20 +13,22 @@ import xyz.nickr.telepad.util.PaginatedData;
 /**
  * @author Nick Robson
  */
-public class ShowsCommand extends Command {
+public class WhoCommand extends Command {
 
-    public ShowsCommand() {
-        super("shows");
-        this.setHelp("gets a list of all tracked shows");
+    public WhoCommand() {
+        super("who");
+        this.setHelp("gets your progress on all shows");
     }
 
     @Override
     public void exec(TelepadBot bot, Message message, String[] args) {
-        Map<String, List<String>> links = Sirius.getSeriesController().getSeriesLinks();
+        Map<String, String> progress = Sirius.getProgressController().getProgress(message.getSender());
 
         List<String> lines = new LinkedList<>();
-        links.forEach((k, v) ->
-                lines.add(String.format("*%s*: %s", escape(k), escape(String.join(", ", v)))));
+        for (Map.Entry<String, String> entry : progress.entrySet()) {
+            String seriesName = Sirius.getSeriesController().getSeriesName(entry.getKey());
+            lines.add(String.format("*%s*: %s", escape(seriesName), escape(entry.getValue())));
+        }
         lines.sort(String.CASE_INSENSITIVE_ORDER);
 
         PaginatedData paginatedData = new PaginatedData(lines, 15);

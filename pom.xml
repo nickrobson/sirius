@@ -15,14 +15,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>pro.zackpollard.telegrambot.api</groupId>
-            <artifactId>jtelegram-botapi</artifactId>
-            <version>1.5.1</version>
-        </dependency>
-        <dependency>
             <groupId>xyz.nickr.telegram</groupId>
             <artifactId>telepad</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>xyz.nickr</groupId>
@@ -39,6 +34,11 @@
             <groupId>org.mongodb</groupId>
             <artifactId>mongodb-driver</artifactId>
             <version>3.4.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.10</version>
         </dependency>
     </dependencies>
 

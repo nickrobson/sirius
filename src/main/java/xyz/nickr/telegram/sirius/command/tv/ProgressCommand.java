@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.sirius.command;
+package xyz.nickr.telegram.sirius.command.tv;
 
 import java.util.regex.Pattern;
 import pro.zackpollard.telegrambot.api.chat.message.Message;

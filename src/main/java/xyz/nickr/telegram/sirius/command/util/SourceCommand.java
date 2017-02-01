@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.sirius.command;
+package xyz.nickr.telegram.sirius.command.util;
 
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;

@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.sirius.command;
+package xyz.nickr.telegram.sirius.command.util;
 
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;

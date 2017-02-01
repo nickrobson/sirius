@@ -1,19 +1,27 @@
 package xyz.nickr.telegram.sirius;
 
+import com.mongodb.client.model.Filters;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.Getter;
+import org.bson.conversions.Bson;
+import org.reflections.Reflections;
+import pro.zackpollard.telegrambot.api.chat.Chat;
+import pro.zackpollard.telegrambot.api.chat.IndividualChat;
+import pro.zackpollard.telegrambot.api.user.User;
 import xyz.nickr.jomdb.JavaOMDB;
-import xyz.nickr.telegram.sirius.command.ProgressCommand;
-import xyz.nickr.telegram.sirius.command.ShowsCommand;
-import xyz.nickr.telegram.sirius.command.SourceCommand;
-import xyz.nickr.telegram.sirius.command.UpdateCommand;
-import xyz.nickr.telegram.sirius.command.WhoCommand;
+import xyz.nickr.telegram.sirius.command.tv.ProgressCommand;
+import xyz.nickr.telegram.sirius.command.tv.ShowsCommand;
+import xyz.nickr.telegram.sirius.command.util.SourceCommand;
+import xyz.nickr.telegram.sirius.command.util.UpdateCommand;
+import xyz.nickr.telegram.sirius.command.tv.WhoCommand;
 import xyz.nickr.telegram.sirius.storage.MongoController;
 import xyz.nickr.telegram.sirius.storage.MongoPermissionPredicate;
 import xyz.nickr.telegram.sirius.tv.ProgressController;
 import xyz.nickr.telegram.sirius.tv.SeriesController;
 import xyz.nickr.telepad.TelepadBot;
+import xyz.nickr.telepad.command.Command;
 import xyz.nickr.telepad.command.CommandManager;
 
 /**
@@ -25,6 +33,7 @@ public class Sirius {
     @Getter private static MongoController mongoController;
     @Getter private static SeriesController seriesController;
     @Getter private static ProgressController progressController;
+    @Getter private static PermissionController permissionController;
     @Getter private static ExecutorService executor;
 
     @Getter public static final JavaOMDB omdb = new JavaOMDB();
@@ -38,6 +47,7 @@ public class Sirius {
         mongoController = new MongoController();
         seriesController = new SeriesController();
         progressController = new ProgressController();
+        permissionController = new PermissionController();
 
         registerCommands();
         botInstance.getPermissionManager().addPredicate(new MongoPermissionPredicate());
@@ -49,15 +59,28 @@ public class Sirius {
         }));
     }
 
-    private static void registerCommands() {
-        CommandManager manager = botInstance.getCommandManager();
+    private static boolean registerCommands() {
+        try {
 
-        manager.register(new WhoCommand());
-        manager.register(new ShowsCommand());
-        manager.register(new ProgressCommand());
+            CommandManager manager = botInstance.getCommandManager();
 
-        manager.register(new SourceCommand());
-        manager.register(new UpdateCommand());
+            Reflections refl = new Reflections("xyz.nickr.telegram.sirius.command");
+            Set<Class<? extends Command>> commandClasses = refl.getSubTypesOf(Command.class);
+
+            for (Class<? extends Command> clazz : commandClasses) {
+                try {
+                    Command cmd = clazz.newInstance();
+                    manager.register(cmd);
+                } catch (ReflectiveOperationException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            return true;
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return false;
+        }
     }
 
 }
