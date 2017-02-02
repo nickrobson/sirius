@@ -69,7 +69,7 @@ public class Series {
     }
 
     public Document toDocument() {
-        return new Document("schema", 4)
+        return new Document("schema", 5)
                 .append("id", id)
                 .append("name", name)
                 .append("genre", genre)
@@ -134,19 +134,17 @@ public class Series {
                 System.out.println("Inserting database series model for id: " + id);
                 collection.insertOne(document);
             } else {
-                int oldSchema = existing.getInteger("schema", 0);
-                int newSchema = document.getInteger("schema", 1);
+                int oldSchema = existing.getInteger("schema", -2);
+                int newSchema = document.getInteger("schema", -1);
                 if (oldSchema < newSchema) {
-                    System.out.println(
-                            "Updating database series model for id: " + id + "\n" +
-                                    "from: " + existing + "\n" +
-                                    "to: " + document
-                    );
+                    System.out.format("Updating database series model for id: %s\nto: %s\n", id, document);
                     collection.replaceOne(eq("id", id), document);
                 } else if (oldSchema > newSchema) {
                     System.err.format(
                             "[ERROR] Found newer schema in database than in code. Invalid database model?\n" +
-                                    "database: %s, code: %s\n", oldSchema, newSchema
+                                    "database: %s, code: %s\n",
+                            oldSchema,
+                            newSchema
                     );
                 }
             }

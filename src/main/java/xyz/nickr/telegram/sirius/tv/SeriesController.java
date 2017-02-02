@@ -64,8 +64,9 @@ public class SeriesController {
                                 String episodeName = episodeDoc.getString("name");
                                 String episodeRelease = episodeDoc.getString("release");
                                 String episodeRating = episodeDoc.getString("rating");
+                                String episodeImdbId = episodeDoc.getString("imdb");
 
-                                episodes[k] = new Episode(episodeId, episodeName, episodeRelease, episodeRating);
+                                episodes[k] = new Episode(episodeId, episodeName, episodeRelease, episodeImdbId, episodeRating);
                             }
 
                             seasons[i] = new Season(seasonDoc.getString("id"), episodes);
@@ -88,7 +89,7 @@ public class SeriesController {
     public Series getSeriesByLink(String link) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
-        Document doc = collection.find(eq("links", link)).first();
+        Document doc = collection.find(eq("links", link)).projection(Projections.include("id")).first();
 
         return doc != null ? getSeries(doc.getString("id"), true) : null;
     }
@@ -104,7 +105,7 @@ public class SeriesController {
 
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
-        Document document = collection.find(eq("id", id)).first();
+        Document document = collection.find(eq("id", id)).projection(Projections.include("name")).first();
         if (document == null) {
             return getSeries(id, true).getName();
         }
@@ -129,4 +130,5 @@ public class SeriesController {
         }
         return map;
     }
+
 }

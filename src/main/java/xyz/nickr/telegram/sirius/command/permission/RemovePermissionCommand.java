@@ -12,7 +12,7 @@ import xyz.nickr.telepad.command.Command;
 public class RemovePermissionCommand extends Command {
 
     public RemovePermissionCommand() {
-        super("addperm");
+        super("delperm");
         this.setUsage("[user] [permission]");
         this.setHelp("removes a permission from a user");
         this.setPermission("admin.permission.remove");
@@ -20,7 +20,7 @@ public class RemovePermissionCommand extends Command {
 
     @Override
     public void exec(TelepadBot bot, Message message, String[] args) {
-        if (args.length < 2) {
+        if (args.length != 2) {
             sendUsage(message);
         } else {
             Long target = Sirius.getBotInstance().getUserCache().getUserId(args[0]);
