@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.bson.Document;
+import xyz.nickr.jomdb.JavaOMDB;
 import xyz.nickr.jomdb.model.SeasonResult;
 import xyz.nickr.jomdb.model.TitleResult;
 import xyz.nickr.telegram.sirius.Sirius;
@@ -93,6 +94,9 @@ public class Series {
     }
 
     public void update() {
+        if (!JavaOMDB.IMDB_ID_PATTERN.matcher(id).matches())
+            throw new IllegalArgumentException("not a valid IMDB id: " + id);
+
         TitleResult titleResult = Sirius.getOmdb().titleById(id);
 
         if (!"series".equals(titleResult.getType()))

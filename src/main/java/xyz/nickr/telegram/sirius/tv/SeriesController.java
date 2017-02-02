@@ -3,6 +3,7 @@ package xyz.nickr.telegram.sirius.tv;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Projections;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -116,9 +117,9 @@ public class SeriesController {
     public Map<String,List<String>> getSeriesLinks() {
         Map<String,List<String>> map = new HashMap<>();
 
-        MongoCollection<Document> showsCollection = Sirius.getMongoController().getCollection("shows");
+        MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
-        try (MongoCursor<Document> cursor = showsCollection.find().projection(Projections.include("name", "links")).iterator()) {
+        try (MongoCursor<Document> cursor = collection.find().projection(Projections.include("name", "links")).iterator()) {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
 
@@ -129,6 +130,15 @@ public class SeriesController {
             }
         }
         return map;
+    }
+
+    public void addShow(Series series, String... links) {
+        MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
+
+        Document document = series.toDocument()
+                .append("links", Arrays.asList(links));
+
+        collection.insertOne(document);
     }
 
 }

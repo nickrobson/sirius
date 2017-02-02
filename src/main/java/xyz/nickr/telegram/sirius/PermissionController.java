@@ -47,7 +47,7 @@ public class PermissionController {
             document = new Document("user", user).append("permissions", Collections.singletonList(permission.toLowerCase()));
             collection.insertOne(document);
         } else {
-            collection.updateOne(eq("user", user), new Document("$push", new Document("permissions", permission.toLowerCase())));
+            collection.updateOne(eq("user", user), new Document("$addToSet", new Document("permissions", permission.toLowerCase())));
         }
     }
 
@@ -57,11 +57,9 @@ public class PermissionController {
 
     public void removePermission(long user, String permission) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("permissions");
-        Document document = collection.find(eq("user", user)).projection(Projections.include("permissions")).first();
+        Document document = collection.find(eq("user", user)).projection(Projections.include("user")).first();
         if (document != null) {
-            List<String> permissions = new LinkedList<>((List<String>) document.get("permissions"));
-            permissions.remove(permission.toLowerCase());
-            collection.updateOne(eq("user", user), new Document("$set", new Document("permissions", permissions)));
+            collection.updateOne(eq("user", user), new Document("$pull", new Document("permissions", permission)));
         }
     }
 
