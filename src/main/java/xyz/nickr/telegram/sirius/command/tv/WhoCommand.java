@@ -54,7 +54,6 @@ public class WhoCommand extends Command {
                         .filter(s -> s.getEpisodes().length > 0)
                         .map(s -> {
                             Optional<Episode> opt = latestEpisodeFunc.apply(s);
-                            System.out.println(series.getName() + " S" + s.getId() + ": " + opt);
                             return opt.map(e -> new AbstractMap.SimpleEntry<>(s, e)).orElse(null);
                         })
                         .filter(Objects::nonNull)

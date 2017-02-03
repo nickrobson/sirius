@@ -3,7 +3,6 @@ package xyz.nickr.telegram.sirius.command.omdb;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.ParseMode;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
-import xyz.nickr.jomdb.model.TitleResult;
 import xyz.nickr.telegram.sirius.Sirius;
 import xyz.nickr.telegram.sirius.tv.Series;
 import xyz.nickr.telepad.TelepadBot;
@@ -16,6 +15,8 @@ public class OmdbTitleCommand extends Command {
 
     public OmdbTitleCommand() {
         super("omdbtitle");
+        this.setHelp("gets omdbapi.com's information about a show");
+        this.setUsage("[name/imdb id]");
     }
 
     @Override
