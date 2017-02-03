@@ -1,4 +1,4 @@
-package xyz.nickr.telegram.sirius;
+package xyz.nickr.telegram.sirius.storage;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Projections;
@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import org.bson.Document;
 import pro.zackpollard.telegrambot.api.user.User;
+import xyz.nickr.telegram.sirius.Sirius;
 
 import static com.mongodb.client.model.Filters.eq;
 

@@ -7,7 +7,7 @@ import lombok.Getter;
 import org.reflections.Reflections;
 import xyz.nickr.jomdb.JavaOMDB;
 import xyz.nickr.telegram.sirius.storage.MongoController;
-import xyz.nickr.telegram.sirius.storage.MongoPermissionPredicate;
+import xyz.nickr.telegram.sirius.storage.PermissionController;
 import xyz.nickr.telegram.sirius.tv.ProgressController;
 import xyz.nickr.telegram.sirius.tv.SeriesController;
 import xyz.nickr.telepad.TelepadBot;
@@ -40,7 +40,7 @@ public class Sirius {
         permissionController = new PermissionController();
 
         registerCommands();
-        botInstance.getPermissionManager().addPredicate(new MongoPermissionPredicate());
+        botInstance.getPermissionManager().addPredicate((m, p) -> permissionController.hasPermission(m.getSender(), p));
         botInstance.start(true);
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
