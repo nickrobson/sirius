@@ -1,21 +1,11 @@
 package xyz.nickr.telegram.sirius;
 
-import com.mongodb.client.model.Filters;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.Getter;
-import org.bson.conversions.Bson;
 import org.reflections.Reflections;
-import pro.zackpollard.telegrambot.api.chat.Chat;
-import pro.zackpollard.telegrambot.api.chat.IndividualChat;
-import pro.zackpollard.telegrambot.api.user.User;
 import xyz.nickr.jomdb.JavaOMDB;
-import xyz.nickr.telegram.sirius.command.tv.ProgressCommand;
-import xyz.nickr.telegram.sirius.command.tv.ShowsCommand;
-import xyz.nickr.telegram.sirius.command.util.SourceCommand;
-import xyz.nickr.telegram.sirius.command.util.UpdateCommand;
-import xyz.nickr.telegram.sirius.command.tv.WhoCommand;
 import xyz.nickr.telegram.sirius.storage.MongoController;
 import xyz.nickr.telegram.sirius.storage.MongoPermissionPredicate;
 import xyz.nickr.telegram.sirius.tv.ProgressController;

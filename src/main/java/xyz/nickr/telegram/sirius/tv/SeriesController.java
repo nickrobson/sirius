@@ -1,13 +1,17 @@
 package xyz.nickr.telegram.sirius.tv;
 
+import com.mongodb.ErrorCategory;
+import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Projections;
+import com.mongodb.client.result.DeleteResult;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.bson.Document;
 import xyz.nickr.telegram.sirius.Sirius;
 
@@ -90,7 +94,7 @@ public class SeriesController {
     public Series getSeriesByLink(String link) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
-        Document doc = collection.find(eq("links", link)).projection(Projections.include("id")).first();
+        Document doc = collection.find(eq("links", link.toLowerCase())).projection(Projections.include("id")).first();
 
         return doc != null ? getSeries(doc.getString("id"), true) : null;
     }
@@ -132,13 +136,27 @@ public class SeriesController {
         return map;
     }
 
-    public void addShow(Series series, String... links) {
+    public boolean addShow(Series series, String... links) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
         Document document = series.toDocument()
-                .append("links", Arrays.asList(links));
+                .append("links", Arrays.stream(links).map(String::toLowerCase).collect(Collectors.toList()));
 
-        collection.insertOne(document);
+        try {
+            collection.insertOne(document);
+            return true;
+        } catch (MongoWriteException ex) {
+            if (ex.getError().getCategory() == ErrorCategory.DUPLICATE_KEY)
+                return false;
+            throw ex;
+        }
+    }
+
+    public boolean removeShow(String id) {
+        MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
+
+        DeleteResult res = collection.deleteOne(eq("id", id));
+        return res.getDeletedCount() > 0;
     }
 
 }

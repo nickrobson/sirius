@@ -26,7 +26,7 @@ public class WhoCommand extends Command {
 
     public WhoCommand() {
         super("who");
-        this.setHelp("gets your progress on all shows");
+        this.setHelp("gets your progress on all series");
     }
 
     @Override

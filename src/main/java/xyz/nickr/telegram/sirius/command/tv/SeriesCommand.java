@@ -13,11 +13,11 @@ import xyz.nickr.telepad.util.PaginatedData;
 /**
  * @author Nick Robson
  */
-public class ShowsCommand extends Command {
+public class SeriesCommand extends Command {
 
-    public ShowsCommand() {
-        super("shows");
-        this.setHelp("gets a list of all tracked shows");
+    public SeriesCommand() {
+        super("series");
+        this.setHelp("gets a list of all tracked series");
     }
 
     @Override

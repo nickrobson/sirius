@@ -39,6 +39,8 @@ public class Series {
     private String runtime;
     private String year;
 
+    private boolean storeInDatabase;
+
     public Series(String id, String name, Season[] seasons, String genre, String actors,  String writer,  String director,  String awards,  String country,  String type,  String rating,  String votes,  String language,  String metascore,  String plot,  String poster,  String runtime,  String year) {
         System.out.println("Invoked new Series(" + id + ", " + name + ", [..seasons..])");
         this.id = id;
@@ -60,17 +62,24 @@ public class Series {
         this.runtime = runtime;
         this.year = year;
 
+        this.storeInDatabase = true;
+
         Sirius.getExecutor().submit(this::update);
     }
 
     public Series(String id) {
+        this(id, true);
+    }
+
+    public Series(String id, boolean storeInDatabase) {
         System.out.println("Invoked new Series(" + id + ")");
         this.id = id;
+        this.storeInDatabase = storeInDatabase;
         update();
     }
 
     public Document toDocument() {
-        return new Document("schema", 5)
+        return new Document("schema", 6)
                 .append("id", id)
                 .append("name", name)
                 .append("genre", genre)
@@ -97,7 +106,7 @@ public class Series {
         if (!JavaOMDB.IMDB_ID_PATTERN.matcher(id).matches())
             throw new IllegalArgumentException("not a valid IMDB id: " + id);
 
-        TitleResult titleResult = Sirius.getOmdb().titleById(id);
+        TitleResult titleResult = Sirius.getOmdb().titleById(id, true);
 
         if (!"series".equals(titleResult.getType()))
             throw new IllegalArgumentException(id + " is a " + titleResult.getType() + " not a series!");
@@ -123,6 +132,9 @@ public class Series {
         for (SeasonResult seasonResult : titleResult) {
             this.seasons[i++] = new Season(seasonResult);
         }
+
+        if (!this.storeInDatabase)
+            return;
 
         Sirius.getExecutor().submit(() -> {
             MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");

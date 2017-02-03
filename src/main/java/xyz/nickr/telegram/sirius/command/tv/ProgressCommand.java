@@ -19,7 +19,7 @@ public class ProgressCommand extends Command {
 
     public ProgressCommand() {
         super("me");
-        this.setHelp("gets and sets your progress on a show");
+        this.setHelp("gets and sets your progress on a series");
         this.setUsage("[series] (episode)");
     }
 
