@@ -9,8 +9,10 @@ import com.mongodb.client.result.DeleteResult;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.bson.Document;
 import xyz.nickr.telegram.sirius.Sirius;
@@ -83,6 +85,10 @@ public class SeriesController {
                 }
             }
         });
+    }
+
+    public Set<Series> getSeries() {
+        return new HashSet<>(this.seriesMap.values());
     }
 
     public Series getSeries(String id, boolean create) {
