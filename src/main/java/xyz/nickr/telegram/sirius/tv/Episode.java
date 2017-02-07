@@ -1,11 +1,8 @@
 package xyz.nickr.telegram.sirius.tv;
 
-import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bson.Document;
@@ -23,7 +20,7 @@ public class Episode {
     private String release;
     private String rating;
     private String imdbId;
-    private Calendar releaseDate;
+    private LocalDateTime releaseDate;
 
     public Episode(String id, String name, String release, String rating, String imdbId) {
         this.id = id;
@@ -38,7 +35,7 @@ public class Episode {
                 int[] parts = Arrays.stream(release.split("-"))
                         .mapToInt(Integer::valueOf)
                         .toArray();
-                this.releaseDate = new GregorianCalendar(parts[0] - 1900, parts[1], parts[2]);
+                this.releaseDate = LocalDateTime.of(parts[0], parts[1], parts[2], 0, 0, 0);
             } catch (Exception ex) {
                 System.err.println("failed to parse release date: " + release);
                 ex.printStackTrace();
@@ -47,7 +44,7 @@ public class Episode {
     }
 
     public Episode(SeasonEpisodeResult res) {
-        this(res.getEpisode(), res.getTitle(), res.getReleased(), res.getImdbRating(), res.getImdbId(), res.getReleaseDate());
+        this(res.getEpisode(), res.getTitle(), res.getReleased(), res.getImdbRating(), res.getImdbId(), LocalDateTime.ofInstant(res.getReleaseDate().toInstant(), ZoneId.systemDefault()));
     }
 
     public Document toDocument() {

@@ -22,10 +22,14 @@ public class UpdateSeriesCommand extends Command {
     @Override
     public void exec(TelepadBot bot, Message message, String[] args) {
         Message m = message.getChat().sendMessage(SendableTextMessage.markdown("_Updating..._").replyTo(message).build());
-        for (Series series : Sirius.getSeriesController().getSeries()) {
-            series.update();
+        try {
+            for (Series series : Sirius.getSeriesController().getSeries()) {
+                series.update();
+            }
+            message.getBotInstance().editMessageText(m, "Successfully updated all tracked shows!", ParseMode.NONE, true, null);
+        } catch (Exception ex) {
+            message.getBotInstance().editMessageText(m, "Failed to update tracked shows - is omdbapi.com down?", ParseMode.NONE, true, null);
         }
-        message.getBotInstance().editMessageText(m, "Successfully updated all tracked shows", ParseMode.NONE, true, null);
     }
 
 }

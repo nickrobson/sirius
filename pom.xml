@@ -6,7 +6,7 @@
 
     <groupId>xyz.nickr.telegram</groupId>
     <artifactId>sirius</artifactId>
-    <version>0.0.6</version>
+    <version>0.0.7</version>
     <name>Sirius</name>
 
     <properties>
@@ -17,7 +17,7 @@
         <dependency>
             <groupId>xyz.nickr.telegram</groupId>
             <artifactId>telepad</artifactId>
-            <version>1.1.1</version>
+            <version>1.2.0</version>
         </dependency>
         <dependency>
             <groupId>xyz.nickr</groupId>

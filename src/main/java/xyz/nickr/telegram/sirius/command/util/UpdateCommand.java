@@ -45,7 +45,26 @@ public class UpdateCommand extends Command {
             Process gitProc = gitProcBuilder.start();
             int gitExit = gitProc.waitFor();
             if (gitExit != 0) {
-                message.getChat().sendMessage(SendableTextMessage.plain("Git process exited with a non-zero exit code.").replyTo(message).build());
+                List<String> updateOutput = new LinkedList<>();
+                BufferedReader gitReader = new BufferedReader(new InputStreamReader(gitProc.getInputStream()));
+                String line;
+                updateOutput.add("\n=== GIT ===\n");
+                while ((line = gitReader.readLine()) != null)
+                    updateOutput.add(line);
+                String pasteId = null;
+                try {
+                    pasteId = Unirest.post("https://nickr.xyz/cgi/paste.py")
+                            .field("lang", "text")
+                            .field("text", String.join("\n", updateOutput))
+                            .asString()
+                            .getBody();
+                } catch (Exception ignored) {}
+                String m = escape("Git process exited with a non-zero exit code.");
+                if (pasteId != null) {
+                    String pasteUrl = "https://nickr.xyz/paste/" + pasteId;
+                    m += "\n" + escape("Git output: ") + "[" + pasteUrl + "](" + pasteUrl + ")";
+                }
+                message.getChat().sendMessage(SendableTextMessage.markdown(m).replyTo(message).build());
                 return;
             }
             Process gitHashProc = new ProcessBuilder()

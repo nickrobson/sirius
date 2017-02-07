@@ -51,7 +51,6 @@ public class Sirius {
 
     private static boolean registerCommands() {
         try {
-
             CommandManager manager = botInstance.getCommandManager();
 
             Reflections refl = new Reflections("xyz.nickr.telegram.sirius.command");
@@ -66,7 +65,6 @@ public class Sirius {
                 }
             }
             return true;
-
         } catch (Exception ex) {
             ex.printStackTrace();
             return false;

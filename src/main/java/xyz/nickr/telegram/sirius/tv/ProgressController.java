@@ -3,6 +3,7 @@ package xyz.nickr.telegram.sirius.tv;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.UpdateOptions;
 import java.util.HashMap;
 import java.util.Map;
 import org.bson.Document;
@@ -18,10 +19,14 @@ import static com.mongodb.client.model.Filters.eq;
 public class ProgressController {
 
     public Map<String, String> getProgress(User user) {
+        return getProgress(user.getId());
+    }
+
+    public Map<String, String> getProgress(long userId) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("progress");
 
         Map<String, String> progress = new HashMap<>();
-        try (MongoCursor<Document> cursor = collection.find(eq("user", user.getId())).projection(Projections.include("id", "episode")).iterator()) {
+        try (MongoCursor<Document> cursor = collection.find(eq("user", userId)).projection(Projections.include("id", "episode")).iterator()) {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
 
@@ -50,7 +55,7 @@ public class ProgressController {
                 .append("user", user.getId())
                 .append("episode", progress);
 
-        collection.updateOne(and(eq("id", id), eq("user", user.getId())), new Document("$set", doc));
+        collection.updateOne(and(eq("id", id), eq("user", user.getId())), new Document("$set", doc), new UpdateOptions().upsert(true));
     }
 
 }

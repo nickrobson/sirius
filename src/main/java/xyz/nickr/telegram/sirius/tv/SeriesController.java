@@ -73,7 +73,7 @@ public class SeriesController {
                                 String episodeRating = episodeDoc.getString("rating");
                                 String episodeImdbId = episodeDoc.getString("imdb");
 
-                                episodes[k] = new Episode(episodeId, episodeName, episodeRelease, episodeImdbId, episodeRating);
+                                episodes[k] = new Episode(episodeId, episodeName, episodeRelease, episodeRating, episodeImdbId);
                             }
 
                             seasons[i] = new Season(seasonDoc.getString("id"), episodes);

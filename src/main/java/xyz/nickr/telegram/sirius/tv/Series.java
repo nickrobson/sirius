@@ -19,7 +19,7 @@ import static com.mongodb.client.model.Filters.eq;
 @Getter
 public class Series {
 
-    private String id;
+    private String imdbId;
     private String name;
     private Season[] seasons;
 
@@ -41,9 +41,9 @@ public class Series {
 
     private boolean storeInDatabase;
 
-    public Series(String id, String name, Season[] seasons, String genre, String actors,  String writer,  String director,  String awards,  String country,  String type,  String rating,  String votes,  String language,  String metascore,  String plot,  String poster,  String runtime,  String year) {
-        System.out.println("Invoked new Series(" + id + ", " + name + ", [..seasons..])");
-        this.id = id;
+    public Series(String imdbId, String name, Season[] seasons, String genre, String actors,  String writer,  String director,  String awards,  String country,  String type,  String rating,  String votes,  String language,  String metascore,  String plot,  String poster,  String runtime,  String year) {
+        System.out.println("Invoked new Series(" + imdbId + ", " + name + ", [..seasons..])");
+        this.imdbId = imdbId;
         this.name = name;
         this.seasons = seasons;
         this.genre = genre;
@@ -67,20 +67,20 @@ public class Series {
         Sirius.getExecutor().submit(this::update);
     }
 
-    public Series(String id) {
-        this(id, true);
+    public Series(String imdbId) {
+        this(imdbId, true);
     }
 
-    public Series(String id, boolean storeInDatabase) {
-        System.out.println("Invoked new Series(" + id + ")");
-        this.id = id;
+    public Series(String imdbId, boolean storeInDatabase) {
+        System.out.println("Invoked new Series(" + imdbId + ")");
+        this.imdbId = imdbId;
         this.storeInDatabase = storeInDatabase;
         update();
     }
 
     public Document toDocument() {
         return new Document("schema", 6)
-                .append("id", id)
+                .append("id", imdbId)
                 .append("name", name)
                 .append("genre", genre)
                 .append("actors", actors)
@@ -103,13 +103,16 @@ public class Series {
     }
 
     public void update() {
-        if (!JavaOMDB.IMDB_ID_PATTERN.matcher(id).matches())
-            throw new IllegalArgumentException("not a valid IMDB id: " + id);
+        if (!JavaOMDB.IMDB_ID_PATTERN.matcher(imdbId).matches())
+            throw new IllegalArgumentException("not a valid IMDB id: " + imdbId);
 
-        TitleResult titleResult = Sirius.getOmdb().titleById(id, true);
+        TitleResult titleResult = Sirius.getOmdb().titleById(imdbId, true);
+
+        if (titleResult == null)
+            return;
 
         if (!"series".equals(titleResult.getType()))
-            throw new IllegalArgumentException(id + " is a " + titleResult.getType() + " not a series!");
+            throw new IllegalArgumentException(imdbId + " is a " + titleResult.getType() + " not a series!");
 
         this.name = titleResult.getTitle();
         this.genre = titleResult.getGenre();
@@ -140,21 +143,21 @@ public class Series {
             MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
             Document document = this.toDocument();
-            Document existing = collection.find(eq("id", id)).projection(Projections.include("schema", "links")).first();
+            Document existing = collection.find(eq("id", imdbId)).projection(Projections.include("schema", "links")).first();
 
             if (existing != null) {
                 document.append("links", existing.get("links")); // we want to keep the links array
             }
 
             if (existing == null) {
-                System.out.println("Inserting database series model for id: " + id);
+                System.out.println("Inserting database series model for id: " + imdbId);
                 collection.insertOne(document);
             } else {
                 int oldSchema = existing.getInteger("schema", -2);
                 int newSchema = document.getInteger("schema", -1);
                 if (oldSchema < newSchema) {
-                    System.out.format("Updating database series model for id: %s\nto: %s\n", id, document);
-                    collection.replaceOne(eq("id", id), document);
+                    System.out.format("Updating database series model for id: %s\nto: %s\n", imdbId, document);
+                    collection.replaceOne(eq("id", imdbId), document);
                 } else if (oldSchema > newSchema) {
                     System.err.format(
                             "[ERROR] Found newer schema in database than in code. Invalid database model?\n" +

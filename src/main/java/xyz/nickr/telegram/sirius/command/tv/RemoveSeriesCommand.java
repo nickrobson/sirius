@@ -30,7 +30,7 @@ public class RemoveSeriesCommand extends Command {
                 message.getChat().sendMessage(SendableTextMessage.plain("I'm not tracking a series called that.").replyTo(message).build());
                 return;
             }
-            if (Sirius.getSeriesController().removeShow(series.getId())) {
+            if (Sirius.getSeriesController().removeShow(series.getImdbId())) {
                 message.getChat().sendMessage(SendableTextMessage.plain("Successfully removed " + escape(series.getName()) + "!").replyTo(message).build());
             } else {
                 message.getChat().sendMessage(SendableTextMessage.plain("I'm not tracking a series called that.").replyTo(message).build());
