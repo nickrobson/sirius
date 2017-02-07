@@ -1,14 +1,7 @@
 package xyz.nickr.telegram.sirius.command.permission;
 
-import java.util.HashMap;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
-import pro.zackpollard.telegrambot.api.chat.message.content.TextContent;
-import pro.zackpollard.telegrambot.api.chat.message.send.SendableMessage;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
-import pro.zackpollard.telegrambot.api.conversations.Conversation;
-import pro.zackpollard.telegrambot.api.conversations.ConversationContext;
-import pro.zackpollard.telegrambot.api.conversations.ConversationPrompt;
-import pro.zackpollard.telegrambot.api.conversations.prompt.TextPrompt;
 import xyz.nickr.telegram.sirius.Sirius;
 import xyz.nickr.telepad.TelepadBot;
 import xyz.nickr.telepad.command.Command;

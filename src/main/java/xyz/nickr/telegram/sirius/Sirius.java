@@ -19,14 +19,26 @@ import xyz.nickr.telepad.command.CommandManager;
  */
 public class Sirius {
 
-    @Getter private static TelepadBot botInstance;
-    @Getter private static MongoController mongoController;
-    @Getter private static SeriesController seriesController;
-    @Getter private static ProgressController progressController;
-    @Getter private static PermissionController permissionController;
-    @Getter private static ExecutorService executor;
+    @Getter
+    private static TelepadBot botInstance;
 
-    @Getter public static final JavaOMDB omdb = new JavaOMDB();
+    @Getter
+    private static MongoController mongoController;
+
+    @Getter
+    private static SeriesController seriesController;
+
+    @Getter
+    private static ProgressController progressController;
+
+    @Getter
+    private static PermissionController permissionController;
+
+    @Getter
+    private static ExecutorService executor;
+
+    @Getter
+    public static final JavaOMDB omdb = new JavaOMDB();
 
     public static void main(String[] args) {
         String authToken = args.length > 0 ? args[0] : System.getenv("AUTH_TOKEN");

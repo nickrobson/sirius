@@ -58,7 +58,8 @@ public class UpdateCommand extends Command {
                             .field("text", String.join("\n", updateOutput))
                             .asString()
                             .getBody();
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
                 String m = escape("Git process exited with a non-zero exit code.");
                 if (pasteId != null) {
                     String pasteUrl = "https://nickr.xyz/paste/" + pasteId;
@@ -85,10 +86,10 @@ public class UpdateCommand extends Command {
             }
             message.getChat().sendMessage(
                     SendableTextMessage.markdown(escape("Successfully pulled from repo.") + "\n" +
-                                    "*" + escape("Latest commit:") + "*" +
-                                    escape(" " + parts[1] + " (") +
-                                    "_" + escape(parts[0].substring(0, 6)) + "_" +
-                                    escape(")"))
+                            "*" + escape("Latest commit:") + "*" +
+                            escape(" " + parts[1] + " (") +
+                            "_" + escape(parts[0].substring(0, 6)) + "_" +
+                            escape(")"))
                             .replyTo(message)
                             .build()
             );

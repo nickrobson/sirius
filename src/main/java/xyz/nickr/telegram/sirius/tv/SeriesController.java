@@ -124,8 +124,8 @@ public class SeriesController {
         return document.getString("name");
     }
 
-    public Map<String,List<String>> getSeriesLinks() {
-        Map<String,List<String>> map = new HashMap<>();
+    public Map<String, List<String>> getSeriesLinks() {
+        Map<String, List<String>> map = new HashMap<>();
 
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 

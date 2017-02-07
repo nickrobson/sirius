@@ -2,7 +2,6 @@ package xyz.nickr.telegram.sirius.command.tv;
 
 import java.time.LocalDateTime;
 import java.util.AbstractMap;
-import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;

@@ -41,7 +41,7 @@ public class Series {
 
     private boolean storeInDatabase;
 
-    public Series(String imdbId, String name, Season[] seasons, String genre, String actors,  String writer,  String director,  String awards,  String country,  String type,  String rating,  String votes,  String language,  String metascore,  String plot,  String poster,  String runtime,  String year) {
+    public Series(String imdbId, String name, Season[] seasons, String genre, String actors, String writer, String director, String awards, String country, String type, String rating, String votes, String language, String metascore, String plot, String poster, String runtime, String year) {
         System.out.println("Invoked new Series(" + imdbId + ", " + name + ", [..seasons..])");
         this.imdbId = imdbId;
         this.name = name;

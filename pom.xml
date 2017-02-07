@@ -6,7 +6,7 @@
 
     <groupId>xyz.nickr.telegram</groupId>
     <artifactId>sirius</artifactId>
-    <version>0.0.7</version>
+    <version>0.0.8</version>
     <name>Sirius</name>
 
     <properties>
@@ -67,7 +67,8 @@
                             <minimizeJar>true</minimizeJar>
                             <finalName>${project.artifactId}-${project.version}-with-dependencies</finalName>
                             <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <mainClass>xyz.nickr.telegram.sirius.Sirius</mainClass>
                                 </transformer>
                             </transformers>

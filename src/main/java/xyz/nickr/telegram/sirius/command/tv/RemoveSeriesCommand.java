@@ -2,7 +2,6 @@ package xyz.nickr.telegram.sirius.command.tv;
 
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
-import xyz.nickr.jomdb.JavaOMDB;
 import xyz.nickr.telegram.sirius.Sirius;
 import xyz.nickr.telegram.sirius.tv.Series;
 import xyz.nickr.telepad.TelepadBot;

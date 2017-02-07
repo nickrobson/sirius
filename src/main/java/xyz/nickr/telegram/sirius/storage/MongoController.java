@@ -11,8 +11,11 @@ import org.bson.Document;
  */
 public class MongoController {
 
-    @Getter private final MongoClient client;
-    @Getter private final MongoDatabase database;
+    @Getter
+    private final MongoClient client;
+
+    @Getter
+    private final MongoDatabase database;
 
     public MongoController() {
         this.client = new MongoClient();

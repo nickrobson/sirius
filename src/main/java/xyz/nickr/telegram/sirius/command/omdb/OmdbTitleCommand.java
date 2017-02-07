@@ -49,15 +49,15 @@ public class OmdbTitleCommand extends Command {
             List<String> pages = new LinkedList<>();
             pages.add(
                     (series.getGenre().equals("N/A") ? "" : escape(series.getGenre() + " " + series.getType()) + "\n") +
-                    (series.getRating().equals("N/A") || series.getVotes().equals("N/A") ? "" : "_Rating:_ " + escape(series.getRating() + " from " + series.getVotes() + " votes") + "\n") +
-                    (series.getMetascore().equals("N/A") ? "" : "_Metascore:_ " + escape(series.getMetascore()) + "\n") +
-                    (series.getRuntime().equals("N/A") ? "" : "_Runtime:_ " + escape(series.getRuntime()) + "\n") +
-                    (series.getDirector().equals("N/A") ? "" : "_Director:_ " + escape(series.getDirector()) + "\n") +
-                    (series.getWriter().equals("N/A") ? "" : "_Writer:_ " + escape(series.getWriter()) + "\n") +
-                    (series.getActors().equals("N/A") ? "" : "_Actors:_ " + escape(series.getActors()) + "\n") +
-                    (series.getAwards().equals("N/A") ? "" : "_Awards:_ " + escape(series.getAwards()) + "\n") +
-                    (series.getLanguage().equals("N/A") ? "" : "_Language:_ " + escape(series.getLanguage()) + "\n") +
-                    (series.getCountry().equals("N/A") ? "" : "_Country:_ " + escape(series.getCountry()))
+                            (series.getRating().equals("N/A") || series.getVotes().equals("N/A") ? "" : "_Rating:_ " + escape(series.getRating() + " from " + series.getVotes() + " votes") + "\n") +
+                            (series.getMetascore().equals("N/A") ? "" : "_Metascore:_ " + escape(series.getMetascore()) + "\n") +
+                            (series.getRuntime().equals("N/A") ? "" : "_Runtime:_ " + escape(series.getRuntime()) + "\n") +
+                            (series.getDirector().equals("N/A") ? "" : "_Director:_ " + escape(series.getDirector()) + "\n") +
+                            (series.getWriter().equals("N/A") ? "" : "_Writer:_ " + escape(series.getWriter()) + "\n") +
+                            (series.getActors().equals("N/A") ? "" : "_Actors:_ " + escape(series.getActors()) + "\n") +
+                            (series.getAwards().equals("N/A") ? "" : "_Awards:_ " + escape(series.getAwards()) + "\n") +
+                            (series.getLanguage().equals("N/A") ? "" : "_Language:_ " + escape(series.getLanguage()) + "\n") +
+                            (series.getCountry().equals("N/A") ? "" : "_Country:_ " + escape(series.getCountry()))
             );
             if (!series.getPlot().equals("N/A")) {
                 pages.add("_Plot:_ " + escape(series.getPlot()));
@@ -66,13 +66,13 @@ public class OmdbTitleCommand extends Command {
                 pages.addAll(getSummaryPages(season));
             }
             PaginatedData paginatedData = new PaginatedData(pages);
-            paginatedData.setHeader("*" + escape(series.getName()) + "*" + escape( " (" + series.getYear() + "), ") + "[" + series.getImdbId() + "](http://www.imdb.com/title/" + series.getImdbId() + ")");
+            paginatedData.setHeader("*" + escape(series.getName()) + "*" + escape(" (" + series.getYear() + "), ") + "[" + series.getImdbId() + "](http://www.imdb.com/title/" + series.getImdbId() + ")");
             paginatedData.setParseMode(ParseMode.MARKDOWN);
             paginatedData.send(0, message);
         }
     }
 
-    private static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d MMM uuuu").withLocale(Locale.US);
+    private static DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d MMM ''uu").withLocale(Locale.US);
 
     public static List<String> getSummaryPages(Season season) {
         List<String> seasonLines = new LinkedList<>();
