@@ -30,36 +30,38 @@ public class OmdbSearchCommand extends Command {
             sendUsage(message);
             return;
         }
-        String search = String.join(" ", args);
-        SearchResults results;
-        try {
-            results = Sirius.getOmdb().search(search);
-        } catch (Exception ignored) {
-            message.getChat().sendMessage(
-                    SendableTextMessage.plain("Failed to search! Please notify @nickrobson")
-                            .replyTo(message)
-                            .build()
-            );
-            return;
-        }
-        if ((results == null) || (results.getPageCount() == 0)) {
-            message.getChat().sendMessage(
-                    SendableTextMessage.plain("No results found.")
-                            .replyTo(message)
-                            .build()
-            );
-            return;
-        }
-        PaginatedData paginatedData = new PaginatedData(i -> {
-            SearchResultsPage page = results.getPage(i + 1);
-            List<String> lines = new LinkedList<>();
-            for (SearchResult result : page) {
-                lines.add(String.format("*%s* (%s): %s, a %s [(poster)](%s)", escape(result.getTitle()), escape(result.getYear()), escape(result.getImdbId()), escape(result.getType()), result.getPoster()));
+        Sirius.getExecutor().submit(() -> {
+            String search = String.join(" ", args);
+            SearchResults results;
+            try {
+                results = Sirius.getOmdb().search(search);
+            } catch (Exception ignored) {
+                message.getChat().sendMessage(
+                        SendableTextMessage.plain("Failed to search! Please notify @nickrobson")
+                                .replyTo(message)
+                                .build()
+                );
+                return;
             }
-            return String.join("\n", lines);
-        }, results.getPageCount());
-        paginatedData.setParseMode(ParseMode.MARKDOWN);
-        paginatedData.send(0, message);
+            if ((results == null) || (results.getPageCount() == 0)) {
+                message.getChat().sendMessage(
+                        SendableTextMessage.plain("No results found.")
+                                .replyTo(message)
+                                .build()
+                );
+                return;
+            }
+            PaginatedData paginatedData = new PaginatedData(i -> {
+                SearchResultsPage page = results.getPage(i + 1);
+                List<String> lines = new LinkedList<>();
+                for (SearchResult result : page) {
+                    lines.add(String.format("*%s* (%s): %s, a %s [(poster)](%s)", escape(result.getTitle()), escape(result.getYear()), escape(result.getImdbId()), escape(result.getType()), result.getPoster()));
+                }
+                return String.join("\n", lines);
+            }, results.getPageCount());
+            paginatedData.setParseMode(ParseMode.MARKDOWN);
+            paginatedData.send(0, message);
+        });
     }
 
 }
