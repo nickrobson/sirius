@@ -1,9 +1,11 @@
 package xyz.nickr.telegram.sirius.command.tv;
 
+import java.text.Collator;
 import java.time.LocalDateTime;
 import java.util.AbstractMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -55,7 +57,7 @@ public class WhoCommand extends Command {
                         s -> IntStream.range(0, s.getEpisodes().length)
                                 .mapToObj(i -> s.getEpisodes()[s.getEpisodes().length - i - 1])
                                 .map(e -> new AbstractMap.SimpleEntry<>(e, e.getReleaseDate()))
-                                .filter(e -> e != null && e.getValue() != null && e.getValue().isBefore(now) && !e.getKey().getRating().equals("N/A"))
+                                .filter(e -> (e != null) && (e.getValue() != null) && e.getValue().isBefore(now) && !Collator.getInstance(Locale.US).equals("N/A", e.getKey().getRating()))
                                 .map(Map.Entry::getKey)
                                 .findFirst();
 

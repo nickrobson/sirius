@@ -1,7 +1,9 @@
 package xyz.nickr.telegram.sirius.command.tv;
 
+import java.text.Collator;
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -23,7 +25,7 @@ import xyz.nickr.telepad.command.Command;
  */
 public class ProgressCommand extends Command {
 
-    public static Pattern EPISODE_PATTERN = Pattern.compile("^S0*([1-9][0-9]*)E0*([1-9][0-9]*)$");
+    private static final Pattern EPISODE_PATTERN = Pattern.compile("^S0*([1-9][0-9]*)E0*([1-9][0-9]*)$");
 
     public ProgressCommand() {
         super("me");
@@ -60,9 +62,9 @@ public class ProgressCommand extends Command {
                 m = escape("You're up to ") + "*" + escape(progress) + "*" + escape(" for ") + "*" + escape(series.getName()) + "*";
             }
         } else {
-            args[1] = args[1].toUpperCase();
+            args[1] = args[1].toUpperCase(Locale.US);
             String newProgress = null;
-            if ("NEXT".equals(args[1])) {
+            if (Collator.getInstance(Locale.US).equals("NEXT", args[1])) {
                 if (progress == null) {
                     message.getChat().sendMessage(SendableTextMessage.plain("You haven't registered any progress yet!").replyTo(message).build());
                     return;
@@ -128,7 +130,7 @@ public class ProgressCommand extends Command {
                     .filter(Objects::nonNull)
                     .filter(s -> Integer.valueOf(s.getId()) <= seasonId)
                     .flatMap(s -> Arrays.stream(s.getEpisodes()).map(e -> new AbstractMap.SimpleEntry<>(s, e)))
-                    .filter(e -> Integer.valueOf(e.getKey().getId()) < seasonId || Integer.valueOf(e.getValue().getId()) < episodeId)
+                    .filter(e -> (Integer.valueOf(e.getKey().getId()) < seasonId) || (Integer.valueOf(e.getValue().getId()) < episodeId))
                     .findFirst()
                     .orElse(null);
             if (ep == null)
@@ -160,7 +162,7 @@ public class ProgressCommand extends Command {
                     .filter(Objects::nonNull)
                     .filter(s -> Integer.valueOf(s.getId()) >= seasonId)
                     .flatMap(s -> Arrays.stream(s.getEpisodes()).map(e -> new AbstractMap.SimpleEntry<>(s, e)))
-                    .filter(e -> Integer.valueOf(e.getKey().getId()) > seasonId || Integer.valueOf(e.getValue().getId()) > episodeId)
+                    .filter(e -> (Integer.valueOf(e.getKey().getId()) > seasonId) || (Integer.valueOf(e.getValue().getId()) > episodeId))
                     .findFirst()
                     .orElse(null);
             if (ep == null)

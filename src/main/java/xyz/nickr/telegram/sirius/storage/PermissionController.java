@@ -1,15 +1,15 @@
 package xyz.nickr.telegram.sirius.storage;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import org.bson.Document;
 import pro.zackpollard.telegrambot.api.user.User;
 import xyz.nickr.telegram.sirius.Sirius;
-
-import static com.mongodb.client.model.Filters.eq;
 
 /**
  * @author Nick Robson
@@ -22,19 +22,19 @@ public class PermissionController {
 
     public List<String> getPermissions(long user) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("permissions");
-        Document document = collection.find(eq("user", user)).projection(Projections.include("permissions")).first();
+        Document document = collection.find(Filters.eq("user", user)).projection(Projections.include("permissions")).first();
         if (document == null)
             return new LinkedList<>();
         List<String> permissions = (List<String>) document.get("permissions");
-        return permissions != null ? new LinkedList<>(permissions) : null;
+        return (permissions != null) ? new LinkedList<>(permissions) : null;
     }
 
     public boolean hasPermission(User user, String permission) {
-        return getPermissions(user).contains(permission.toLowerCase());
+        return getPermissions(user).contains(permission.toLowerCase(Locale.US));
     }
 
     public boolean hasPermission(long user, String permission) {
-        return getPermissions(user).contains(permission.toLowerCase());
+        return getPermissions(user).contains(permission.toLowerCase(Locale.US));
     }
 
     public void addPermission(User user, String permission) {
@@ -43,12 +43,12 @@ public class PermissionController {
 
     public void addPermission(long user, String permission) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("permissions");
-        Document document = collection.find(eq("user", user)).projection(Projections.include("permissions")).first();
+        Document document = collection.find(Filters.eq("user", user)).projection(Projections.include("permissions")).first();
         if (document == null) {
-            document = new Document("user", user).append("permissions", Collections.singletonList(permission.toLowerCase()));
+            document = new Document("user", user).append("permissions", Collections.singletonList(permission.toLowerCase(Locale.US)));
             collection.insertOne(document);
         } else {
-            collection.updateOne(eq("user", user), new Document("$addToSet", new Document("permissions", permission.toLowerCase())));
+            collection.updateOne(Filters.eq("user", user), new Document("$addToSet", new Document("permissions", permission.toLowerCase(Locale.US))));
         }
     }
 
@@ -58,9 +58,9 @@ public class PermissionController {
 
     public void removePermission(long user, String permission) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("permissions");
-        Document document = collection.find(eq("user", user)).projection(Projections.include("user")).first();
+        Document document = collection.find(Filters.eq("user", user)).projection(Projections.include("user")).first();
         if (document != null) {
-            collection.updateOne(eq("user", user), new Document("$pull", new Document("permissions", permission)));
+            collection.updateOne(Filters.eq("user", user), new Document("$pull", new Document("permissions", permission)));
         }
     }
 

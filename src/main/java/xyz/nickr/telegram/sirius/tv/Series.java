@@ -1,17 +1,19 @@
 package xyz.nickr.telegram.sirius.tv;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
+import java.text.Collator;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import org.bson.Document;
+import xyz.nickr.jomdb.JOMDBUnavailableException;
 import xyz.nickr.jomdb.JavaOMDB;
 import xyz.nickr.jomdb.model.SeasonResult;
 import xyz.nickr.jomdb.model.TitleResult;
 import xyz.nickr.telegram.sirius.Sirius;
-
-import static com.mongodb.client.model.Filters.eq;
 
 /**
  * @author Nick Robson
@@ -103,71 +105,78 @@ public class Series {
     }
 
     public void update() {
-        if (!JavaOMDB.IMDB_ID_PATTERN.matcher(imdbId).matches())
-            throw new IllegalArgumentException("not a valid IMDB id: " + imdbId);
+        try {
+            if (!JavaOMDB.IMDB_ID_PATTERN.matcher(imdbId).matches())
+                throw new IllegalArgumentException("not a valid IMDB id: " + imdbId);
 
-        TitleResult titleResult = Sirius.getOmdb().titleById(imdbId, true);
+            TitleResult titleResult = Sirius.getOmdb().titleById(imdbId, true);
 
-        if (titleResult == null)
-            return;
+            if (titleResult == null)
+                return;
 
-        if (!"series".equals(titleResult.getType()))
-            throw new IllegalArgumentException(imdbId + " is a " + titleResult.getType() + " not a series!");
+            if (!Collator.getInstance(Locale.US).equals("series", titleResult.getType()))
+                throw new IllegalArgumentException(imdbId + " is a " + titleResult.getType() + " not a series!");
 
-        this.name = titleResult.getTitle();
-        this.genre = titleResult.getGenre();
-        this.actors = titleResult.getActors();
-        this.writer = titleResult.getWriter();
-        this.director = titleResult.getDirector();
-        this.awards = titleResult.getAwards();
-        this.country = titleResult.getCountry();
-        this.type = titleResult.getType();
-        this.rating = titleResult.getImdbRating();
-        this.votes = titleResult.getImdbVotes();
-        this.language = titleResult.getLanguage();
-        this.metascore = titleResult.getMetascore();
-        this.plot = titleResult.getPlot();
-        this.poster = titleResult.getPoster();
-        this.runtime = titleResult.getRuntime();
-        this.year = titleResult.getYear();
-        this.seasons = new Season[titleResult.getTotalSeasons()];
-        int i = 0;
-        for (SeasonResult seasonResult : titleResult) {
-            this.seasons[i++] = new Season(seasonResult);
-        }
-
-        if (!this.storeInDatabase)
-            return;
-
-        Sirius.getExecutor().submit(() -> {
-            MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
-
-            Document document = this.toDocument();
-            Document existing = collection.find(eq("id", imdbId)).projection(Projections.include("schema", "links")).first();
-
-            if (existing != null) {
-                document.append("links", existing.get("links")); // we want to keep the links array
+            this.name = titleResult.getTitle();
+            this.genre = titleResult.getGenre();
+            this.actors = titleResult.getActors();
+            this.writer = titleResult.getWriter();
+            this.director = titleResult.getDirector();
+            this.awards = titleResult.getAwards();
+            this.country = titleResult.getCountry();
+            this.type = titleResult.getType();
+            this.rating = titleResult.getImdbRating();
+            this.votes = titleResult.getImdbVotes();
+            this.language = titleResult.getLanguage();
+            this.metascore = titleResult.getMetascore();
+            this.plot = titleResult.getPlot();
+            this.poster = titleResult.getPoster();
+            this.runtime = titleResult.getRuntime();
+            this.year = titleResult.getYear();
+            this.seasons = new Season[titleResult.getTotalSeasons()];
+            int i = 0;
+            for (SeasonResult seasonResult : titleResult) {
+                this.seasons[i] = new Season(seasonResult);
+                i++;
             }
 
-            if (existing == null) {
-                System.out.println("Inserting database series model for id: " + imdbId);
-                collection.insertOne(document);
-            } else {
-                int oldSchema = existing.getInteger("schema", -2);
-                int newSchema = document.getInteger("schema", -1);
-                if (oldSchema < newSchema) {
-                    System.out.format("Updating database series model for id: %s\nto: %s\n", imdbId, document);
-                    collection.replaceOne(eq("id", imdbId), document);
-                } else if (oldSchema > newSchema) {
-                    System.err.format(
-                            "[ERROR] Found newer schema in database than in code. Invalid database model?\n" +
-                                    "database: %s, code: %s\n",
-                            oldSchema,
-                            newSchema
-                    );
+            if (!this.storeInDatabase)
+                return;
+
+            Sirius.getExecutor().submit(() -> {
+                MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
+
+                Document document = this.toDocument();
+                Document existing = collection.find(Filters.eq("id", imdbId)).projection(Projections.include("schema", "links")).first();
+
+                if (existing != null) {
+                    document.append("links", existing.get("links")); // we want to keep the links array
                 }
-            }
-        });
+
+                if (existing == null) {
+                    System.out.println("Inserting database series model for id: " + imdbId);
+                    collection.insertOne(document);
+                } else {
+                    int oldSchema = existing.getInteger("schema", -2);
+                    int newSchema = document.getInteger("schema", -1);
+                    if (oldSchema < newSchema) {
+                        System.out.format("Updating database series model for id: %s\nto: %s\n", imdbId, document);
+                        collection.replaceOne(Filters.eq("id", imdbId), document);
+                    } else if (oldSchema > newSchema) {
+                        System.err.format(
+                                "[ERROR] Found newer schema in database than in code. Invalid database model?\n" +
+                                        "database: %s, code: %s\n",
+                                oldSchema,
+                                newSchema
+                        );
+                    }
+                }
+            });
+        } catch (JOMDBUnavailableException ex) {
+            System.err.println(ex.toString());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
 }

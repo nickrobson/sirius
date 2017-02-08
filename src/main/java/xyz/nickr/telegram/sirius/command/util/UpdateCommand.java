@@ -7,12 +7,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
+import java.text.Collator;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
 import xyz.nickr.telepad.TelepadBot;
@@ -23,7 +26,6 @@ import xyz.nickr.telepad.command.Command;
  */
 public class UpdateCommand extends Command {
 
-    private final String GIT_URL = "https://github.com/nickrobson/sirius.git";
     private final File LAST_PULL_FILE = new File(".version");
 
     public UpdateCommand() {
@@ -34,21 +36,22 @@ public class UpdateCommand extends Command {
 
     @Override
     public void exec(TelepadBot bot, Message message, String[] args) {
-        File buildDir = new File("build");
         try {
             ProcessBuilder gitProcBuilder = new ProcessBuilder();
+            File buildDir = new File("build");
             if (buildDir.exists()) {
                 gitProcBuilder.command("git", "pull").directory(buildDir);
             } else {
+                String GIT_URL = "https://github.com/nickrobson/sirius.git";
                 gitProcBuilder.command("git", "clone", GIT_URL, buildDir.toString());
             }
             Process gitProc = gitProcBuilder.start();
             int gitExit = gitProc.waitFor();
             if (gitExit != 0) {
                 List<String> updateOutput = new LinkedList<>();
-                BufferedReader gitReader = new BufferedReader(new InputStreamReader(gitProc.getInputStream()));
-                String line;
+                BufferedReader gitReader = new BufferedReader(new InputStreamReader(gitProc.getInputStream(), StandardCharsets.UTF_8));
                 updateOutput.add("\n=== GIT ===\n");
+                String line;
                 while ((line = gitReader.readLine()) != null)
                     updateOutput.add(line);
                 String pasteId = null;
@@ -72,12 +75,12 @@ public class UpdateCommand extends Command {
                     .command("git", "log", "-n", "1", "--pretty=format:%H:%s")
                     .directory(buildDir)
                     .start();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(gitHashProc.getInputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(gitHashProc.getInputStream(), StandardCharsets.UTF_8));
             String[] parts = reader.readLine().split(":", 2);
             reader.close();
             try {
                 List<String> lines = Files.readAllLines(LAST_PULL_FILE.toPath());
-                if (parts[0].equals(lines.get(0))) {
+                if (Collator.getInstance(Locale.US).equals(parts[0], lines.get(0))) {
                     message.getChat().sendMessage(SendableTextMessage.plain("No new updates.").replyTo(message).build());
                     return;
                 }
@@ -101,10 +104,10 @@ public class UpdateCommand extends Command {
                     .start();
             int mvnExit = mvnProc.waitFor();
             List<String> updateOutput = new LinkedList<>();
-            BufferedReader gitReader = new BufferedReader(new InputStreamReader(gitProc.getInputStream()));
-            BufferedReader mvnReader = new BufferedReader(new InputStreamReader(mvnProc.getInputStream()));
-            String line;
+            BufferedReader gitReader = new BufferedReader(new InputStreamReader(gitProc.getInputStream(), StandardCharsets.UTF_8));
+            BufferedReader mvnReader = new BufferedReader(new InputStreamReader(mvnProc.getInputStream(), StandardCharsets.UTF_8));
             updateOutput.add("\n=== GIT ===\n");
+            String line;
             while ((line = gitReader.readLine()) != null)
                 updateOutput.add(line);
             updateOutput.add("\n=== MAVEN ===\n");
@@ -120,7 +123,7 @@ public class UpdateCommand extends Command {
             } catch (UnirestException e) {
                 e.printStackTrace();
             }
-            String m = escape(mvnExit == 0 ? "Successfully built new version." : "Maven process exited with a non-zero exit code.");
+            String m = escape((mvnExit == 0) ? "Successfully built new version." : "Maven process exited with a non-zero exit code.");
             if (pasteId != null) {
                 String pasteUrl = "https://nickr.xyz/paste/" + pasteId;
                 m += "\n" + escape("Git and maven output: ") + "[" + pasteUrl + "](" + pasteUrl + ")";
@@ -132,7 +135,7 @@ public class UpdateCommand extends Command {
             File targetDir = new File(buildDir, "target");
             if (targetDir.isDirectory()) {
                 File[] matching = targetDir.listFiles(fn -> fn.getName().endsWith("-with-dependencies.jar"));
-                if (matching == null || matching.length == 0) {
+                if ((matching == null) || (matching.length == 0)) {
                     message.getChat().sendMessage(SendableTextMessage.plain("No jar files ending with '-with-dependencies.jar'").replyTo(message).build());
                     return;
                 }

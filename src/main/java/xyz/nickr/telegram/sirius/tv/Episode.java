@@ -1,8 +1,6 @@
 package xyz.nickr.telegram.sirius.tv;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Arrays;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bson.Document;
@@ -25,26 +23,14 @@ public class Episode {
     public Episode(String id, String name, String release, String rating, String imdbId) {
         this.id = id;
         this.name = name;
-        this.release = release;
         this.rating = rating;
         this.imdbId = imdbId;
-        this.releaseDate = null;
-
-        if (release != null && !release.isEmpty() && !"N/A".equals(release)) {
-            try {
-                int[] parts = Arrays.stream(release.split("-"))
-                        .mapToInt(Integer::valueOf)
-                        .toArray();
-                this.releaseDate = LocalDateTime.of(parts[0], parts[1], parts[2], 0, 0, 0);
-            } catch (Exception ex) {
-                System.err.println("failed to parse release date: " + release);
-                ex.printStackTrace();
-            }
-        }
+        this.release = release;
+        this.releaseDate = SeasonEpisodeResult.parseReleaseDate(release);
     }
 
     public Episode(SeasonEpisodeResult res) {
-        this(res.getEpisode(), res.getTitle(), res.getReleased(), res.getImdbRating(), res.getImdbId(), LocalDateTime.ofInstant(res.getReleaseDate().toInstant(), ZoneId.systemDefault()));
+        this(res.getEpisode(), res.getTitle(), res.getRelease(), res.getImdbRating(), res.getImdbId(), res.getReleaseDate());
     }
 
     public Document toDocument() {

@@ -41,7 +41,7 @@ public class Sirius {
     public static final JavaOMDB omdb = new JavaOMDB();
 
     public static void main(String[] args) {
-        String authToken = args.length > 0 ? args[0] : System.getenv("AUTH_TOKEN");
+        String authToken = (args.length > 0) ? args[0] : System.getenv("AUTH_TOKEN");
         botInstance = new TelepadBot(authToken);
 
         executor = Executors.newFixedThreadPool(24);
@@ -61,7 +61,7 @@ public class Sirius {
         }));
     }
 
-    private static boolean registerCommands() {
+    private static void registerCommands() {
         try {
             CommandManager manager = botInstance.getCommandManager();
 
@@ -76,10 +76,8 @@ public class Sirius {
                     ex.printStackTrace();
                 }
             }
-            return true;
         } catch (Exception ex) {
             ex.printStackTrace();
-            return false;
         }
     }
 

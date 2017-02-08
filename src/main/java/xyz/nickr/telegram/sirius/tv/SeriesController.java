@@ -4,6 +4,7 @@ import com.mongodb.ErrorCategory;
 import com.mongodb.MongoWriteException;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
 import com.mongodb.client.result.DeleteResult;
 import java.util.Arrays;
@@ -11,13 +12,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.bson.Document;
 import xyz.nickr.telegram.sirius.Sirius;
-
-import static com.mongodb.client.model.Filters.eq;
 
 /**
  * @author Nick Robson
@@ -100,9 +100,9 @@ public class SeriesController {
     public Series getSeriesByLink(String link) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
-        Document doc = collection.find(eq("links", link.toLowerCase())).projection(Projections.include("id")).first();
+        Document doc = collection.find(Filters.eq("links", link.toLowerCase(Locale.US))).projection(Projections.include("id")).first();
 
-        return doc != null ? getSeries(doc.getString("id"), true) : null;
+        return (doc != null) ? getSeries(doc.getString("id"), true) : null;
     }
 
     public String getSeriesName(String id) {
@@ -116,7 +116,7 @@ public class SeriesController {
 
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
-        Document document = collection.find(eq("id", id)).projection(Projections.include("name")).first();
+        Document document = collection.find(Filters.eq("id", id)).projection(Projections.include("name")).first();
         if (document == null) {
             return getSeries(id, true).getName();
         }
@@ -161,7 +161,7 @@ public class SeriesController {
     public boolean removeShow(String id) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
-        DeleteResult res = collection.deleteOne(eq("id", id));
+        DeleteResult res = collection.deleteOne(Filters.eq("id", id));
         return res.getDeletedCount() > 0;
     }
 

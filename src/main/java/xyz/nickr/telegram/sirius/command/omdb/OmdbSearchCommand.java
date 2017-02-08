@@ -31,8 +31,10 @@ public class OmdbSearchCommand extends Command {
             return;
         }
         String search = String.join(" ", args);
-        SearchResults results = Sirius.getOmdb().search(search);
-        if (results == null) {
+        SearchResults results;
+        try {
+            results = Sirius.getOmdb().search(search);
+        } catch (Exception ignored) {
             message.getChat().sendMessage(
                     SendableTextMessage.plain("Failed to search! Please notify @nickrobson")
                             .replyTo(message)
@@ -40,7 +42,7 @@ public class OmdbSearchCommand extends Command {
             );
             return;
         }
-        if (results.getPageCount() == 0) {
+        if ((results == null) || (results.getPageCount() == 0)) {
             message.getChat().sendMessage(
                     SendableTextMessage.plain("No results found.")
                             .replyTo(message)
