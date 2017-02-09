@@ -1,9 +1,7 @@
 package xyz.nickr.telegram.sirius.command.tv;
 
-import java.text.Collator;
 import java.util.AbstractMap;
 import java.util.Arrays;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
@@ -62,9 +60,9 @@ public class ProgressCommand extends Command {
                 m = escape("You're up to ") + "*" + escape(progress) + "*" + escape(" for ") + "*" + escape(series.getName()) + "*";
             }
         } else {
-            args[1] = args[1].toUpperCase(Locale.US);
+            args[1] = args[1].toUpperCase(bot.getLocale());
             String newProgress = null;
-            if (Collator.getInstance(Locale.US).equals("NEXT", args[1])) {
+            if (bot.getCollator().equals("NEXT", args[1])) {
                 if (progress == null) {
                     message.getChat().sendMessage(SendableTextMessage.plain("You haven't registered any progress yet!").replyTo(message).build());
                     return;

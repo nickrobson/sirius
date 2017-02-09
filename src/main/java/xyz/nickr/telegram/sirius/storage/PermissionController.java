@@ -6,10 +6,10 @@ import com.mongodb.client.model.Projections;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import org.bson.Document;
 import pro.zackpollard.telegrambot.api.user.User;
 import xyz.nickr.telegram.sirius.Sirius;
+import xyz.nickr.telepad.TelepadBot;
 
 /**
  * @author Nick Robson
@@ -30,11 +30,11 @@ public class PermissionController {
     }
 
     public boolean hasPermission(User user, String permission) {
-        return getPermissions(user).contains(permission.toLowerCase(Locale.US));
+        return getPermissions(user).contains(permission.toLowerCase(Sirius.getBotInstance().getLocale()));
     }
 
     public boolean hasPermission(long user, String permission) {
-        return getPermissions(user).contains(permission.toLowerCase(Locale.US));
+        return getPermissions(user).contains(permission.toLowerCase(Sirius.getBotInstance().getLocale()));
     }
 
     public void addPermission(User user, String permission) {
@@ -45,10 +45,10 @@ public class PermissionController {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("permissions");
         Document document = collection.find(Filters.eq("user", user)).projection(Projections.include("permissions")).first();
         if (document == null) {
-            document = new Document("user", user).append("permissions", Collections.singletonList(permission.toLowerCase(Locale.US)));
+            document = new Document("user", user).append("permissions", Collections.singletonList(permission.toLowerCase(Sirius.getBotInstance().getLocale())));
             collection.insertOne(document);
         } else {
-            collection.updateOne(Filters.eq("user", user), new Document("$addToSet", new Document("permissions", permission.toLowerCase(Locale.US))));
+            collection.updateOne(Filters.eq("user", user), new Document("$addToSet", new Document("permissions", permission.toLowerCase(Sirius.getBotInstance().getLocale()))));
         }
     }
 

@@ -1,16 +1,8 @@
 package xyz.nickr.telegram.sirius.command.tv;
 
-import java.text.Collator;
-import java.time.LocalDateTime;
-import java.util.AbstractMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.IntStream;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.ParseMode;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
@@ -51,26 +43,7 @@ public class WhoCommand extends Command {
             Series series = Sirius.getSeriesController().getSeries(entry.getKey(), true);
             int oldSize = lines.size();
             try {
-                LocalDateTime now = LocalDateTime.now();
-
-                Function<Season, Optional<Episode>> latestEpisodeFunc =
-                        s -> IntStream.range(0, s.getEpisodes().length)
-                                .mapToObj(i -> s.getEpisodes()[s.getEpisodes().length - i - 1])
-                                .map(e -> new AbstractMap.SimpleEntry<>(e, e.getReleaseDate()))
-                                .filter(e -> (e != null) && (e.getValue() != null) && e.getValue().isBefore(now) && !Collator.getInstance(Locale.US).equals("N/A", e.getKey().getRating()))
-                                .map(Map.Entry::getKey)
-                                .findFirst();
-
-                Map.Entry<Season, Episode> latestEpisode = IntStream.range(0, series.getSeasons().length)
-                        .mapToObj(i -> series.getSeasons()[series.getSeasons().length - i - 1])
-                        .filter(Objects::nonNull)
-                        .filter(s -> s.getEpisodes().length > 0)
-                        .map(s -> latestEpisodeFunc.apply(s)
-                                .map(e -> new AbstractMap.SimpleEntry<>(s, e))
-                                .orElse(null))
-                        .filter(Objects::nonNull)
-                        .findFirst()
-                        .orElse(null);
+                Map.Entry<Season, Episode> latestEpisode = series.getLastAiredEpisode();
 
                 if (latestEpisode != null) {
                     String[] episodeParts = entry.getValue().substring(1).split("E");

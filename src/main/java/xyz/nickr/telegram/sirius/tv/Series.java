@@ -3,10 +3,15 @@ package xyz.nickr.telegram.sirius.tv;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Projections;
-import java.text.Collator;
+import java.time.LocalDateTime;
+import java.util.AbstractMap;
 import java.util.Arrays;
-import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.Getter;
 import org.bson.Document;
 import xyz.nickr.jomdb.JOMDBUnavailableException;
@@ -21,7 +26,7 @@ import xyz.nickr.telegram.sirius.Sirius;
 @Getter
 public class Series {
 
-    private String imdbId;
+    private final String imdbId;
     private String name;
     private Season[] seasons;
 
@@ -41,7 +46,10 @@ public class Series {
     private String runtime;
     private String year;
 
-    private boolean storeInDatabase;
+    private final boolean storeInDatabase;
+
+    private Map.Entry<Season, Episode> lastAiredEpisode, nextAiredEpisode;
+    private boolean loadedAiredEpisodes;
 
     public Series(String imdbId, String name, Season[] seasons, String genre, String actors, String writer, String director, String awards, String country, String type, String rating, String votes, String language, String metascore, String plot, String poster, String runtime, String year) {
         System.out.println("Invoked new Series(" + imdbId + ", " + name + ", [..seasons..])");
@@ -80,6 +88,58 @@ public class Series {
         update();
     }
 
+    public Map.Entry<Season, Episode> getLastAiredEpisode() {
+        if (loadedAiredEpisodes)
+            return this.lastAiredEpisode;
+
+        LocalDateTime now = LocalDateTime.now();
+        Function<Season, Optional<Episode>> latestEpisodeFunc =
+                s -> IntStream.range(0, s.getEpisodes().length)
+                        .mapToObj(i -> s.getEpisodes()[s.getEpisodes().length - i - 1])
+                        .map(e -> new AbstractMap.SimpleEntry<>(e, e.getReleaseDate()))
+                        .filter(e -> (e != null) && (e.getValue() != null) && e.getValue().isBefore(now) && !Sirius.getBotInstance().getCollator().equals("N/A", e.getKey().getRating()))
+                        .map(Map.Entry::getKey)
+                        .findFirst();
+
+        this.lastAiredEpisode = IntStream.range(0, seasons.length)
+                .mapToObj(i -> seasons[seasons.length - i - 1])
+                .filter(Objects::nonNull)
+                .filter(s -> s.getEpisodes().length > 0)
+                .map(s -> latestEpisodeFunc.apply(s)
+                        .map(e -> new AbstractMap.SimpleEntry<>(s, e))
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+
+        loadedAiredEpisodes = true;
+
+        if (this.lastAiredEpisode == null)
+            return null;
+
+        int epSlot = Arrays.asList(lastAiredEpisode.getKey().getEpisodes()).indexOf(lastAiredEpisode.getValue());
+
+        if (epSlot != lastAiredEpisode.getKey().getEpisodes().length - 1) {
+            this.nextAiredEpisode = new AbstractMap.SimpleEntry<>(lastAiredEpisode.getKey(), lastAiredEpisode.getKey().getEpisodes()[epSlot + 1]);
+        } else {
+            int seasonSlot = Arrays.asList(seasons).indexOf(lastAiredEpisode.getKey());
+            if (seasonSlot != seasons.length - 1) {
+                Season season = seasons[seasonSlot + 1];
+                if (season.getEpisodes().length > 0) {
+                    this.nextAiredEpisode = new AbstractMap.SimpleEntry<>(season, season.getEpisodes()[0]);
+                }
+            }
+        }
+
+        return this.lastAiredEpisode;
+    }
+
+    public Map.Entry<Season, Episode> getNextAiredEpisode() {
+        if (!loadedAiredEpisodes)
+            getLastAiredEpisode();
+        return this.nextAiredEpisode;
+    }
+
     public Document toDocument() {
         return new Document("schema", 6)
                 .append("id", imdbId)
@@ -114,7 +174,7 @@ public class Series {
             if (titleResult == null)
                 return;
 
-            if (!Collator.getInstance(Locale.US).equals("series", titleResult.getType()))
+            if (!Sirius.getBotInstance().getCollator().equals("series", titleResult.getType()))
                 throw new IllegalArgumentException(imdbId + " is a " + titleResult.getType() + " not a series!");
 
             this.name = titleResult.getTitle();

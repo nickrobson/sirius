@@ -4,7 +4,6 @@ import java.text.Collator;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.ParseMode;
@@ -22,8 +21,6 @@ import xyz.nickr.telepad.util.Partition;
  * @author Nick Robson
  */
 public class OmdbTitleCommand extends Command {
-
-    private static final Collator collator = Collator.getInstance(Locale.US);
 
     public OmdbTitleCommand() {
         super("omdbtitle");
@@ -49,6 +46,7 @@ public class OmdbTitleCommand extends Command {
                 message.getChat().sendMessage(SendableTextMessage.plain("That's not a valid series.").replyTo(message).build());
                 return;
             }
+            Collator collator = bot.getCollator();
             List<String> pages = new LinkedList<>();
             pages.add(
                     (collator.equals("N/A", series.getGenre()) ? "" : escape(series.getGenre() + " " + series.getType()) + "\n") +
@@ -66,7 +64,7 @@ public class OmdbTitleCommand extends Command {
                 pages.add("_Plot:_ " + escape(series.getPlot()));
             }
             for (Season season : series.getSeasons()) {
-                pages.addAll(getSummaryPages(season));
+                pages.addAll(getSummaryPages(bot, season));
             }
             PaginatedData paginatedData = new PaginatedData(pages);
             paginatedData.setHeader("*" + escape(series.getName()) + "*" + escape(" (" + series.getYear() + "), ") + "[" + series.getImdbId() + "](http://www.imdb.com/title/" + series.getImdbId() + ")");
@@ -75,20 +73,21 @@ public class OmdbTitleCommand extends Command {
         }
     }
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d MMM ''uu").withLocale(Locale.US);
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d MMM ''uu");
 
-    public static List<String> getSummaryPages(Season season) {
+    public static List<String> getSummaryPages(TelepadBot bot, Season season) {
+        DateTimeFormatter formatter = FORMATTER.withLocale(bot.getLocale());
         List<String> seasonLines = new LinkedList<>();
         for (Episode episode : season.getEpisodes()) {
             List<String> episodeLines = new LinkedList<>();
             episodeLines.add(String.format("*S%sE%s*: _%s_", escape(season.getId()), escape(episode.getId()), escape(episode.getName())));
-            if (!collator.equals("N/A", episode.getRating())) {
+            if (!bot.getCollator().equals("N/A", episode.getRating())) {
                 episodeLines.add(escape(episode.getRating() + "/10"));
             }
             if (episode.getReleaseDate() != null) {
-                episodeLines.add(FORMATTER.format(episode.getReleaseDate()));
+                episodeLines.add(formatter.format(episode.getReleaseDate()));
             }
-            if (!collator.equals("N/A", episode.getImdbId())) {
+            if (!bot.getCollator().equals("N/A", episode.getImdbId())) {
                 episodeLines.add(String.format("[link](http://www.imdb.com/title/%s)", episode.getImdbId()));
             }
             seasonLines.add(String.join(", ", episodeLines));

@@ -11,11 +11,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
-import java.text.Collator;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
 import xyz.nickr.telepad.TelepadBot;
@@ -80,7 +78,7 @@ public class UpdateCommand extends Command {
             reader.close();
             try {
                 List<String> lines = Files.readAllLines(LAST_PULL_FILE.toPath());
-                if (Collator.getInstance(Locale.US).equals(parts[0], lines.get(0))) {
+                if (bot.getCollator().equals(parts[0], lines.get(0))) {
                     message.getChat().sendMessage(SendableTextMessage.plain("No new updates.").replyTo(message).build());
                     return;
                 }

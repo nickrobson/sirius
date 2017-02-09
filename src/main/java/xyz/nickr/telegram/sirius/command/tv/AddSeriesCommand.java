@@ -1,6 +1,5 @@
 package xyz.nickr.telegram.sirius.command.tv;
 
-import java.util.Locale;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
 import xyz.nickr.jomdb.JavaOMDB;
@@ -26,7 +25,7 @@ public class AddSeriesCommand extends Command {
         if (args.length != 2) {
             sendUsage(message);
         } else {
-            args[0] = args[0].toLowerCase(Locale.US);
+            args[0] = args[0].toLowerCase(bot.getLocale());
             if (!JavaOMDB.IMDB_ID_PATTERN.matcher(args[0]).matches()) {
                 message.getChat().sendMessage(SendableTextMessage.plain("That isn't a valid IMDB ID!").replyTo(message).build());
                 return;

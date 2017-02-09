@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -100,7 +99,7 @@ public class SeriesController {
     public Series getSeriesByLink(String link) {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("shows");
 
-        Document doc = collection.find(Filters.eq("links", link.toLowerCase(Locale.US))).projection(Projections.include("id")).first();
+        Document doc = collection.find(Filters.eq("links", link.toLowerCase(Sirius.getBotInstance().getLocale()))).projection(Projections.include("id")).first();
 
         return (doc != null) ? getSeries(doc.getString("id"), true) : null;
     }

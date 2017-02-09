@@ -1,18 +1,14 @@
 package xyz.nickr.telegram.sirius;
 
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.Getter;
-import org.reflections.Reflections;
 import xyz.nickr.jomdb.JavaOMDB;
 import xyz.nickr.telegram.sirius.storage.MongoController;
 import xyz.nickr.telegram.sirius.storage.PermissionController;
 import xyz.nickr.telegram.sirius.tv.ProgressController;
 import xyz.nickr.telegram.sirius.tv.SeriesController;
 import xyz.nickr.telepad.TelepadBot;
-import xyz.nickr.telepad.command.Command;
-import xyz.nickr.telepad.command.CommandManager;
 
 /**
  * @author Nick Robson
@@ -51,7 +47,7 @@ public class Sirius {
         progressController = new ProgressController();
         permissionController = new PermissionController();
 
-        registerCommands();
+        botInstance.getCommandManager().registerPackage("xyz.nickr.telegram.sirius.command");
         botInstance.getPermissionManager().addPredicate((m, p) -> permissionController.hasPermission(m.getSender(), p));
         botInstance.start(true);
 
@@ -59,26 +55,6 @@ public class Sirius {
             mongoController.getClient().close();
             executor.shutdown();
         }));
-    }
-
-    private static void registerCommands() {
-        try {
-            CommandManager manager = botInstance.getCommandManager();
-
-            Reflections refl = new Reflections("xyz.nickr.telegram.sirius.command");
-            Set<Class<? extends Command>> commandClasses = refl.getSubTypesOf(Command.class);
-
-            for (Class<? extends Command> clazz : commandClasses) {
-                try {
-                    Command cmd = clazz.newInstance();
-                    manager.register(cmd);
-                } catch (ReflectiveOperationException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
     }
 
 }
