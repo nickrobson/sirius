@@ -59,7 +59,6 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
-                            <minimizeJar>true</minimizeJar>
                             <finalName>${project.artifactId}-${project.version}-with-dependencies</finalName>
                             <transformers>
                                 <transformer
