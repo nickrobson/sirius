@@ -1,14 +1,15 @@
 package xyz.nickr.telegram.sirius.command.util;
 
 import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
@@ -24,7 +25,8 @@ import xyz.nickr.telepad.command.Command;
  */
 public class UpdateCommand extends Command {
 
-    private final File LAST_PULL_FILE = new File(".version");
+    private final File BUILD_DIR = new File("build");
+    private final File LAST_PULL_FILE = new File(BUILD_DIR, ".version");
 
     public UpdateCommand() {
         super("update");
@@ -36,31 +38,21 @@ public class UpdateCommand extends Command {
     public void exec(TelepadBot bot, Message message, String[] args) {
         try {
             ProcessBuilder gitProcBuilder = new ProcessBuilder();
-            File buildDir = new File("build");
-            if (buildDir.exists()) {
-                gitProcBuilder.command("git", "pull").directory(buildDir);
+            if (BUILD_DIR.exists()) {
+                new ProcessBuilder()
+                        .command("git", "checkout", "--")
+                        .directory(BUILD_DIR)
+                        .start()
+                        .waitFor();
+                gitProcBuilder.command("git", "pull").directory(BUILD_DIR);
             } else {
                 String GIT_URL = "https://github.com/nickrobson/sirius.git";
-                gitProcBuilder.command("git", "clone", GIT_URL, buildDir.toString());
+                gitProcBuilder.command("git", "clone", GIT_URL, BUILD_DIR.toString());
             }
             Process gitProc = gitProcBuilder.start();
             int gitExit = gitProc.waitFor();
             if (gitExit != 0) {
-                List<String> updateOutput = new LinkedList<>();
-                BufferedReader gitReader = new BufferedReader(new InputStreamReader(gitProc.getInputStream(), StandardCharsets.UTF_8));
-                updateOutput.add("\n=== GIT ===\n");
-                String line;
-                while ((line = gitReader.readLine()) != null)
-                    updateOutput.add(line);
-                String pasteId = null;
-                try {
-                    pasteId = Unirest.post("https://nickr.xyz/cgi/paste.py")
-                            .field("lang", "text")
-                            .field("text", String.join("\n", updateOutput))
-                            .asString()
-                            .getBody();
-                } catch (Exception ignored) {
-                }
+                String pasteId = paste(gitProc);
                 String m = escape("Git process exited with a non-zero exit code.");
                 if (pasteId != null) {
                     String pasteUrl = "https://nickr.xyz/paste/" + pasteId;
@@ -71,7 +63,7 @@ public class UpdateCommand extends Command {
             }
             Process gitHashProc = new ProcessBuilder()
                     .command("git", "log", "-n", "1", "--pretty=format:%H:%s")
-                    .directory(buildDir)
+                    .directory(BUILD_DIR)
                     .start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(gitHashProc.getInputStream(), StandardCharsets.UTF_8));
             String[] parts = reader.readLine().split(":", 2);
@@ -82,6 +74,7 @@ public class UpdateCommand extends Command {
                     message.getChat().sendMessage(SendableTextMessage.plain("No new updates.").replyTo(message).build());
                     return;
                 }
+            } catch (FileNotFoundException | NoSuchFileException ignored) {
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -97,30 +90,11 @@ public class UpdateCommand extends Command {
             Files.write(LAST_PULL_FILE.toPath(), Collections.singletonList(parts[0]), StandardOpenOption.CREATE);
             Process mvnProc = new ProcessBuilder()
                     .command("mvn", "clean", "package")
-                    .directory(buildDir)
+                    .directory(BUILD_DIR)
                     .redirectErrorStream(true)
                     .start();
             int mvnExit = mvnProc.waitFor();
-            List<String> updateOutput = new LinkedList<>();
-            BufferedReader gitReader = new BufferedReader(new InputStreamReader(gitProc.getInputStream(), StandardCharsets.UTF_8));
-            BufferedReader mvnReader = new BufferedReader(new InputStreamReader(mvnProc.getInputStream(), StandardCharsets.UTF_8));
-            updateOutput.add("\n=== GIT ===\n");
-            String line;
-            while ((line = gitReader.readLine()) != null)
-                updateOutput.add(line);
-            updateOutput.add("\n=== MAVEN ===\n");
-            while ((line = mvnReader.readLine()) != null)
-                updateOutput.add(line);
-            String pasteId = null;
-            try {
-                pasteId = Unirest.post("https://nickr.xyz/cgi/paste.py")
-                        .field("lang", "text")
-                        .field("text", String.join("\n", updateOutput))
-                        .asString()
-                        .getBody();
-            } catch (UnirestException e) {
-                e.printStackTrace();
-            }
+            String pasteId = paste(gitProc, mvnProc);
             String m = escape((mvnExit == 0) ? "Successfully built new version." : "Maven process exited with a non-zero exit code.");
             if (pasteId != null) {
                 String pasteUrl = "https://nickr.xyz/paste/" + pasteId;
@@ -130,7 +104,7 @@ public class UpdateCommand extends Command {
             if (mvnExit != 0)
                 return;
 
-            File targetDir = new File(buildDir, "target");
+            File targetDir = new File(BUILD_DIR, "target");
             if (targetDir.isDirectory()) {
                 File[] matching = targetDir.listFiles(fn -> fn.getName().endsWith("-with-dependencies.jar"));
                 if ((matching == null) || (matching.length == 0)) {
@@ -149,6 +123,32 @@ public class UpdateCommand extends Command {
         } catch (InterruptedException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    private static String paste(Process... processes) {
+        List<String> updateOutput = new LinkedList<>();
+        for (Process process : processes) {
+            try {
+                updateOutput.add("\n=========\n");
+                BufferedReader procReader = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
+                String line;
+                while ((line = procReader.readLine()) != null)
+                    updateOutput.add(line);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        if (updateOutput.size() > 1)
+            updateOutput.add("\n=========\n");
+        String pasteId = null;
+        try {
+            pasteId = Unirest.post("https://nickr.xyz/cgi/paste.py")
+                    .field("lang", "text")
+                    .field("text", String.join("\n", updateOutput))
+                    .asString()
+                    .getBody();
+        } catch (Exception ignored) {}
+        return pasteId;
     }
 
 }
