@@ -1,5 +1,6 @@
 package xyz.nickr.telegram.sirius;
 
+import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.Getter;

@@ -28,7 +28,7 @@ public class ProgressCommand extends Command {
     public ProgressCommand() {
         super("me");
         this.setHelp("gets and sets your progress on a series");
-        this.setUsage("[series] (episode|next (count))");
+        this.setUsage("[series] (episode|remove|next (count))");
     }
 
     @Override
@@ -44,11 +44,7 @@ public class ProgressCommand extends Command {
             series = Sirius.getSeriesController().getSeriesByLink(args[0]);
         }
         if (series == null) {
-            message.getChat().sendMessage(
-                    SendableTextMessage
-                            .markdown("No such series!")
-                            .replyTo(message)
-                            .build());
+            reply(message, "No such series!", ParseMode.NONE);
             return;
         }
         String m = null;
@@ -61,7 +57,7 @@ public class ProgressCommand extends Command {
             }
         } else {
             args[1] = args[1].toUpperCase(bot.getLocale());
-            String newProgress = null;
+            String newProgress;
             if (bot.getCollator().equals("NEXT", args[1])) {
                 if (progress == null) {
                     message.getChat().sendMessage(SendableTextMessage.plain("You haven't registered any progress yet!").replyTo(message).build());
@@ -81,12 +77,21 @@ public class ProgressCommand extends Command {
                     message.getChat().sendMessage(SendableTextMessage.plain("I had a problem with getting your past progress!").replyTo(message).build());
                     return;
                 }
+            } else if (bot.getCollator().equals("REMOVE", args[1])) {
+                boolean deleted = Sirius.getProgressController().removeProgress(message.getSender(), series.getImdbId());
+                if (deleted) {
+                    reply(message, "Removed your progress on *" + escape(series.getName()) + "*!", ParseMode.MARKDOWN);
+                } else {
+                    reply(message, "No progress found on *" + escape(series.getName()) + "*!", ParseMode.MARKDOWN);
+                }
+                return;
             } else {
                 Matcher matcher = EPISODE_PATTERN.matcher(args[1]);
                 if (matcher.matches()) {
                     newProgress = String.format("S%sE%s", matcher.group(1), matcher.group(2));
                 } else {
                     m = escape("Invalid episode format, must be SxEy");
+                    newProgress = null;
                 }
             }
             if (newProgress != null) {
@@ -101,15 +106,8 @@ public class ProgressCommand extends Command {
                 }
             }
         }
-        if (m == null)
-            return;
-        message.getChat().sendMessage(
-                SendableTextMessage.builder()
-                        .replyTo(message)
-                        .message(m)
-                        .parseMode(ParseMode.MARKDOWN)
-                        .build()
-        );
+        if (m != null)
+            reply(message, m, ParseMode.MARKDOWN);
     }
 
     private String findPrevious(Series series, String current, int next) {
