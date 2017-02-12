@@ -8,7 +8,6 @@ import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.DeleteResult;
 import java.util.HashMap;
 import java.util.Map;
-import javax.print.Doc;
 import org.bson.Document;
 import pro.zackpollard.telegrambot.api.user.User;
 import xyz.nickr.telegram.sirius.Sirius;
@@ -44,7 +43,7 @@ public class ProgressController {
 
         Document document = collection.find(Filters.and(Filters.eq("id", id), Filters.eq("user", user.getId()))).projection(Projections.include("episode")).first();
 
-        return (document != null) ? document.getString("episode") : null;
+        return document != null ? document.getString("episode") : null;
     }
 
     public void setProgress(User user, String id, String progress) {
@@ -62,6 +61,7 @@ public class ProgressController {
         MongoCollection<Document> collection = Sirius.getMongoController().getCollection("progress");
 
         DeleteResult res = collection.deleteOne(Filters.and(Filters.eq("user", user.getId()), Filters.eq("id", id)));
+
         return res.getDeletedCount() > 0;
     }
 

@@ -38,7 +38,7 @@ public class Sirius {
     public static final JavaOMDB omdb = new JavaOMDB();
 
     public static void main(String[] args) {
-        String authToken = (args.length > 0) ? args[0] : System.getenv("AUTH_TOKEN");
+        String authToken = args.length > 0 ? args[0] : System.getenv("AUTH_TOKEN");
         botInstance = new TelepadBot(authToken);
 
         executor = Executors.newFixedThreadPool(24);
@@ -49,6 +49,8 @@ public class Sirius {
         permissionController = new PermissionController();
 
         botInstance.getCommandManager().registerPackage("xyz.nickr.telegram.sirius.command");
+        botInstance.getCommandManager().registerScriptDirectory(new File("scripts"));
+
         botInstance.getPermissionManager().addPredicate((m, p) -> permissionController.hasPermission(m.getSender(), p));
         botInstance.start(true);
 

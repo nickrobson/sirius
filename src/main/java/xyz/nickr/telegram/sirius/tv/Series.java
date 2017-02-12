@@ -123,11 +123,10 @@ public class Series {
             this.nextAiredEpisode = new AbstractMap.SimpleEntry<>(lastAiredEpisode.getKey(), lastAiredEpisode.getKey().getEpisodes()[epSlot + 1]);
         } else {
             int seasonSlot = Arrays.asList(seasons).indexOf(lastAiredEpisode.getKey());
-            if (seasonSlot != seasons.length - 1) {
-                Season season = seasons[seasonSlot + 1];
-                if (season.getEpisodes().length > 0) {
-                    this.nextAiredEpisode = new AbstractMap.SimpleEntry<>(season, season.getEpisodes()[0]);
-                }
+            while (++seasonSlot < seasons.length && seasons[seasonSlot] == null);
+            Season season = seasons[seasonSlot];
+            if (season != null && season.getEpisodes() != null && season.getEpisodes().length > 0) {
+                this.nextAiredEpisode = new AbstractMap.SimpleEntry<>(season, season.getEpisodes()[0]);
             }
         }
 
