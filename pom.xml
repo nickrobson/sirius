@@ -6,7 +6,7 @@
 
     <groupId>xyz.nickr.telegram</groupId>
     <artifactId>sirius</artifactId>
-    <version>0.0.11</version>
+    <version>0.0.12</version>
     <name>Sirius</name>
 
     <properties>

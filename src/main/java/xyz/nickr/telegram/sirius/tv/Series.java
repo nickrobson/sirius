@@ -176,28 +176,52 @@ public class Series {
             if (!Sirius.getBotInstance().getCollator().equals("series", titleResult.getType()))
                 throw new IllegalArgumentException(imdbId + " is a " + titleResult.getType() + " not a series!");
 
-            this.name = titleResult.getTitle();
-            this.genre = titleResult.getGenre();
-            this.actors = titleResult.getActors();
-            this.writer = titleResult.getWriter();
-            this.director = titleResult.getDirector();
-            this.awards = titleResult.getAwards();
-            this.country = titleResult.getCountry();
-            this.type = titleResult.getType();
-            this.rating = titleResult.getImdbRating();
-            this.votes = titleResult.getImdbVotes();
-            this.language = titleResult.getLanguage();
-            this.metascore = titleResult.getMetascore();
-            this.plot = titleResult.getPlot();
-            this.poster = titleResult.getPoster();
-            this.runtime = titleResult.getRuntime();
-            this.year = titleResult.getYear();
-            this.seasons = new Season[titleResult.getTotalSeasons()];
+            if (titleResult.getTitle() != null)
+                this.name = titleResult.getTitle();
+            if (titleResult.getGenre() != null)
+                this.genre = titleResult.getGenre();
+            if (titleResult.getActors() != null)
+                this.actors = titleResult.getActors();
+            if (titleResult.getWriter() != null)
+                this.writer = titleResult.getWriter();
+            if (titleResult.getDirector() != null)
+                this.director = titleResult.getDirector();
+            if (titleResult.getAwards() != null)
+                this.awards = titleResult.getAwards();
+            if (titleResult.getCountry() != null)
+                this.country = titleResult.getCountry();
+            if (titleResult.getType() != null)
+                this.type = titleResult.getType();
+            if (titleResult.getImdbRating() != null)
+                this.rating = titleResult.getImdbRating();
+            if (titleResult.getImdbVotes() != null)
+                this.votes = titleResult.getImdbVotes();
+            if (titleResult.getLanguage() != null)
+                this.language = titleResult.getLanguage();
+            if (titleResult.getMetascore() != null)
+                this.metascore = titleResult.getMetascore();
+            if (titleResult.getPlot() != null)
+                this.plot = titleResult.getPlot();
+            if (titleResult.getPoster() != null)
+                this.poster = titleResult.getPoster();
+            if (titleResult.getRuntime() != null)
+                this.runtime = titleResult.getRuntime();
+            if (titleResult.getYear() != null)
+                this.year = titleResult.getYear();
+
+            Season[] seasons = new Season[titleResult.getTotalSeasons()];
             int i = 0;
-            for (SeasonResult seasonResult : titleResult) {
-                this.seasons[i] = new Season(seasonResult);
-                i++;
+            try {
+                for (SeasonResult seasonResult : titleResult) {
+                    seasons[i] = new Season(seasonResult);
+                    i++;
+                }
+            } catch (RuntimeException ex) {
+                ex.printStackTrace();
             }
+
+            if (i == seasons.length)
+                this.seasons = seasons;
 
             if (!this.storeInDatabase)
                 return;
