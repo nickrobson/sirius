@@ -76,8 +76,10 @@ public class OmdbTitleCommand extends Command {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d MMM ''uu");
 
     public static List<String> getSummaryPages(TelepadBot bot, Season season) {
-        DateTimeFormatter formatter = FORMATTER.withLocale(bot.getLocale());
         List<String> seasonLines = new LinkedList<>();
+        if (season == null)
+            return seasonLines;
+        DateTimeFormatter formatter = FORMATTER.withLocale(bot.getLocale());
         for (Episode episode : season.getEpisodes()) {
             List<String> episodeLines = new LinkedList<>();
             episodeLines.add(String.format("*S%sE%s*: _%s_", escape(season.getId()), escape(episode.getId()), escape(episode.getName())));
