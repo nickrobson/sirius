@@ -209,6 +209,7 @@ public class Series {
             if (titleResult.getYear() != null)
                 this.year = titleResult.getYear();
 
+            this.seasons = new Season[0];
             try {
                 Season[] seasons = new Season[titleResult.getTotalSeasons()];
                 int i = 0;
