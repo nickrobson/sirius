@@ -209,19 +209,18 @@ public class Series {
             if (titleResult.getYear() != null)
                 this.year = titleResult.getYear();
 
-            Season[] seasons = new Season[titleResult.getTotalSeasons()];
-            int i = 0;
             try {
+                Season[] seasons = new Season[titleResult.getTotalSeasons()];
+                int i = 0;
                 for (SeasonResult seasonResult : titleResult) {
                     seasons[i] = new Season(seasonResult);
                     i++;
                 }
+                if (i == seasons.length)
+                    this.seasons = seasons;
             } catch (RuntimeException ex) {
                 ex.printStackTrace();
             }
-
-            if (i == seasons.length)
-                this.seasons = seasons;
 
             if (!this.storeInDatabase)
                 return;
