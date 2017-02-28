@@ -55,9 +55,8 @@ public class SeriesController {
 
                     seriesNamesMap.put(id, name);
 
-                    Season[] seasons;
+                    Season[] seasons = new Season[seasonsList != null ? seasonsList.size() : 0];
                     if (seasonsList != null) {
-                        seasons = new Season[seasonsList.size()];
                         for (int i = 0, j = seasons.length; i < j; i++) {
                             Document seasonDoc = seasonsList.get(i);
                             List<Document> episodesList = (List<Document>) seasonDoc.get("episodes");
@@ -77,8 +76,6 @@ public class SeriesController {
 
                             seasons[i] = new Season(seasonDoc.getString("id"), episodes);
                         }
-                    } else {
-                        seasons = new Season[0];
                     }
                     seriesMap.put(id, new Series(id, name, seasons, genre, actors, writer, director, awards, country, type, rating, votes, language, metascore, plot, poster, runtime, year));
                 }
