@@ -51,14 +51,14 @@ public class WhoCommand extends Command {
                     int seasonId = Integer.parseInt(episodeParts[0]);
                     int episodeId = Integer.parseInt(episodeParts[1]);
 
-                    int newSeasonId = Integer.parseInt(latestEpisode.getKey().getId());
+                    int newSeasonId = latestEpisode.getKey().getId();
 
                     boolean added = false;
                     if (newSeasonId > seasonId) {
                         added = true;
                     } else if (newSeasonId == seasonId) {
                         Episode latestEp = latestEpisode.getValue();
-                        if (Integer.parseInt(latestEp.getId()) > episodeId) {
+                        if (latestEp.getId() > episodeId) {
                             added = true;
                         }
                     }
@@ -66,7 +66,7 @@ public class WhoCommand extends Command {
                     System.out.println("latest for " + series.getName() + ": S" + latestEpisode.getKey().getId() + "E" + latestEpisode.getValue().getId());
 
                     if (added) {
-                        lines.add(String.format("*%s*: %s _(latest: S%sE%s)_", escape(series.getName(), false), escape(entry.getValue()), escape(latestEpisode.getKey().getId(), false), escape(latestEpisode.getValue().getId(), false)));
+                        lines.add(String.format("*%s*: %s _(latest: S%sE%s)_", escape(series.getName(), false), escape(entry.getValue()), escape(String.valueOf(latestEpisode.getKey().getId()), false), escape(String.valueOf(latestEpisode.getValue().getId()), false)));
                     }
                 }
 

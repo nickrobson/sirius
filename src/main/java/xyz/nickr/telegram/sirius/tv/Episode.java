@@ -4,7 +4,8 @@ import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bson.Document;
-import xyz.nickr.jomdb.model.SeasonEpisodeResult;
+import xyz.nickr.filmfo.Filmfo;
+import xyz.nickr.filmfo.model.season.SeasonEpisode;
 
 /**
  * @author Nick Robson
@@ -13,31 +14,28 @@ import xyz.nickr.jomdb.model.SeasonEpisodeResult;
 @AllArgsConstructor
 public class Episode {
 
-    private String id;
+    private int id;
     private String name;
     private String release;
-    private String rating;
     private String imdbId;
     private LocalDateTime releaseDate;
 
-    public Episode(String id, String name, String release, String rating, String imdbId) {
+    public Episode(int id, String name, String release, String imdbId) {
         this.id = id;
         this.name = name;
-        this.rating = rating;
         this.imdbId = imdbId;
         this.release = release;
-        this.releaseDate = SeasonEpisodeResult.parseReleaseDate(release);
+        this.releaseDate = Filmfo.parseDate(release);
     }
 
-    public Episode(SeasonEpisodeResult res) {
-        this(res.getEpisode(), res.getTitle(), res.getRelease(), res.getImdbRating(), res.getImdbId(), res.getReleaseDate());
+    public Episode(SeasonEpisode res) {
+        this(res.getEpisode(), res.getName(), res.getDate(), res.getId(), Filmfo.parseDate(res.getDate()));
     }
 
     public Document toDocument() {
         return new Document()
                 .append("id", id)
                 .append("name", name)
-                .append("rating", rating)
                 .append("release", release)
                 .append("imdb", imdbId);
     }

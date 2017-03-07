@@ -5,8 +5,7 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.bson.Document;
-import xyz.nickr.jomdb.model.SeasonEpisodeResult;
-import xyz.nickr.jomdb.model.SeasonResult;
+import xyz.nickr.filmfo.model.season.SeasonEpisode;
 
 /**
  * @author Nick Robson
@@ -15,13 +14,13 @@ import xyz.nickr.jomdb.model.SeasonResult;
 @AllArgsConstructor
 public class Season {
 
-    private String id;
+    private int id;
     private Episode[] episodes;
 
-    public Season(SeasonResult seasonResult) {
+    public Season(xyz.nickr.filmfo.model.season.Season seasonResult) {
         this.id = seasonResult.getSeason();
 
-        SeasonEpisodeResult[] episodes = seasonResult.getEpisodes();
+        SeasonEpisode[] episodes = seasonResult.getEpisodes();
         this.episodes = new Episode[episodes.length];
         for (int i = 0, j = episodes.length; i < j; i++)
             this.episodes[i] = new Episode(episodes[i]);

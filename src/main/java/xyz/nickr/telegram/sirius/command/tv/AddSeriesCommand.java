@@ -2,7 +2,7 @@ package xyz.nickr.telegram.sirius.command.tv;
 
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
-import xyz.nickr.jomdb.JavaOMDB;
+import xyz.nickr.filmfo.Filmfo;
 import xyz.nickr.telegram.sirius.Sirius;
 import xyz.nickr.telegram.sirius.tv.Series;
 import xyz.nickr.telepad.TelepadBot;
@@ -26,7 +26,7 @@ public class AddSeriesCommand extends Command {
             sendUsage(message);
         } else {
             args[0] = args[0].toLowerCase(bot.getLocale());
-            if (!JavaOMDB.IMDB_ID_PATTERN.matcher(args[0]).matches()) {
+            if (!Filmfo.IMDB_ID_PATTERN.matcher(args[0]).matches()) {
                 message.getChat().sendMessage(SendableTextMessage.plain("That isn't a valid IMDB ID!").replyTo(message).build());
                 return;
             }

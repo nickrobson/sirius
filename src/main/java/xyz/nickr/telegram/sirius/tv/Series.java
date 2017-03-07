@@ -14,10 +14,11 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.Getter;
 import org.bson.Document;
-import xyz.nickr.jomdb.JOMDBUnavailableException;
-import xyz.nickr.jomdb.JavaOMDB;
-import xyz.nickr.jomdb.model.SeasonResult;
-import xyz.nickr.jomdb.model.TitleResult;
+import xyz.nickr.filmfo.Filmfo;
+import xyz.nickr.filmfo.FilmfoException;
+import xyz.nickr.filmfo.model.title.SeriesTitle;
+import xyz.nickr.filmfo.model.title.TitleActor;
+import xyz.nickr.filmfo.model.title.TitlePerson;
 import xyz.nickr.telegram.sirius.Sirius;
 
 /**
@@ -30,47 +31,43 @@ public class Series {
     private String name;
     private Season[] seasons;
 
-    private String genre;
-    private String actors;
-    private String writer;
-    private String director;
-    private String awards;
-    private String country;
     private String type;
-    private String rating;
-    private String votes;
-    private String language;
-    private String metascore;
-    private String plot;
-    private String poster;
-    private String runtime;
     private String year;
+    private String[] genres;
+    private String[] actors;
+    private String[] creators;
+    private String[] directors;
+    private String awards;
+    private double rating;
+    private long ratingCount;
+    private String[] countries;
+    private String[] languages;
+    private String plot;
+    private int runtime;
 
     private final boolean storeInDatabase;
 
     private Map.Entry<Season, Episode> lastAiredEpisode, nextAiredEpisode;
     private boolean loadedAiredEpisodes;
 
-    public Series(String imdbId, String name, Season[] seasons, String genre, String actors, String writer, String director, String awards, String country, String type, String rating, String votes, String language, String metascore, String plot, String poster, String runtime, String year) {
-        System.out.println("Invoked new Series(" + imdbId + ", " + name + ", [..seasons..])");
+    public Series(String imdbId, String name, Season[] seasons, String type, String year, String[] genres, String[] actors, String[] creators, String[] directors, String awards, double rating, long ratingCount, String[] countries, String[] languages, String plot, int runtime) {
+        System.err.println("Invoked new Series(" + imdbId + ", " + name + ", ...)");
         this.imdbId = imdbId;
         this.name = name;
         this.seasons = seasons;
-        this.genre = genre;
-        this.actors = actors;
-        this.writer = writer;
-        this.director = director;
-        this.awards = awards;
-        this.country = country;
         this.type = type;
-        this.rating = rating;
-        this.votes = votes;
-        this.language = language;
-        this.metascore = metascore;
-        this.plot = plot;
-        this.poster = poster;
-        this.runtime = runtime;
         this.year = year;
+        this.genres = genres;
+        this.actors = actors;
+        this.creators = creators;
+        this.directors = directors;
+        this.awards = awards;
+        this.rating = rating;
+        this.ratingCount = ratingCount;
+        this.countries = countries;
+        this.languages = languages;
+        this.plot = plot;
+        this.runtime = runtime;
 
         this.storeInDatabase = true;
 
@@ -82,7 +79,7 @@ public class Series {
     }
 
     public Series(String imdbId, boolean storeInDatabase) {
-        System.out.println("Invoked new Series(" + imdbId + ")");
+        System.err.println("Invoked new Series(" + imdbId + ")");
         this.imdbId = imdbId;
         this.storeInDatabase = storeInDatabase;
         update();
@@ -97,7 +94,7 @@ public class Series {
                 s -> IntStream.range(0, s.getEpisodes().length)
                         .mapToObj(i -> s.getEpisodes()[s.getEpisodes().length - i - 1])
                         .map(e -> new AbstractMap.SimpleEntry<>(e, e.getReleaseDate()))
-                        .filter(e -> (e != null) && (e.getValue() != null) && e.getValue().isBefore(now) && !Sirius.getBotInstance().getCollator().equals("N/A", e.getKey().getRating()))
+                        .filter(e -> (e != null) && (e.getValue() != null) && e.getValue().isBefore(now))
                         .map(Map.Entry::getKey)
                         .findFirst();
 
@@ -140,86 +137,63 @@ public class Series {
     }
 
     public Document toDocument() {
-        return new Document("schema", 6)
+        return new Document("schema", 8)
                 .append("id", imdbId)
                 .append("name", name)
-                .append("genre", genre)
-                .append("actors", actors)
-                .append("writer", writer)
-                .append("director", director)
-                .append("awards", awards)
-                .append("country", country)
                 .append("type", type)
-                .append("rating", rating)
-                .append("votes", votes)
-                .append("language", language)
-                .append("metascore", metascore)
-                .append("plot", plot)
-                .append("poster", poster)
-                .append("runtime", runtime)
                 .append("year", year)
+                .append("genres", Arrays.asList(genres))
+                .append("actors", Arrays.asList(actors))
+                .append("creators", Arrays.asList(creators))
+                .append("directors", Arrays.asList(directors))
+                .append("awards", awards)
+                .append("rating", rating)
+                .append("ratingCount", ratingCount)
+                .append("countries", Arrays.asList(countries))
+                .append("languages", Arrays.asList(languages))
+                .append("plot", plot)
+                .append("runtime", runtime)
                 .append("seasons", Arrays.stream(this.seasons)
                         .map(Season::toDocument)
                         .collect(Collectors.toList()));
     }
 
+    private <X> String[] map(X[] xs, Function<X, String> func) {
+        return Arrays.stream(xs).map(func).collect(Collectors.toList()).toArray(new String[0]);
+    }
+
     public void update() {
         try {
-            if (!JavaOMDB.IMDB_ID_PATTERN.matcher(imdbId).matches())
+            if (!Filmfo.IMDB_ID_PATTERN.matcher(imdbId).matches())
                 throw new IllegalArgumentException("not a valid IMDB id: " + imdbId);
 
-            TitleResult titleResult = Sirius.getOmdb().titleById(imdbId, true);
+            SeriesTitle title = Sirius.getFilmfo().getSeriesTitle(imdbId);
 
-            if (titleResult == null)
+            if (title == null)
                 return;
 
-            if (!Sirius.getBotInstance().getCollator().equals("series", titleResult.getType()))
-                throw new IllegalArgumentException(imdbId + " is a " + titleResult.getType() + " not a series!");
+            this.name = title.getName();
+            this.type = title.getType();
+            this.year = title.getYear();
+            this.genres = title.getGenres();
+            this.actors = map(title.getActors(), TitleActor::getName);
+            this.creators = map(title.getCreators(), TitlePerson::getName);
+            this.directors = map(title.getDirectors(), TitlePerson::getName);
+            this.awards = title.getAwards();
+            this.rating = title.getRating();
+            this.ratingCount = title.getRatingCount();
+            this.countries = title.getCountries();
+            this.languages = title.getLanguages();
+            this.plot = title.getPlot();
+            this.runtime = title.getRuntime();
 
-            if (titleResult.getTitle() != null)
-                this.name = titleResult.getTitle();
-            if (titleResult.getGenre() != null)
-                this.genre = titleResult.getGenre();
-            if (titleResult.getActors() != null)
-                this.actors = titleResult.getActors();
-            if (titleResult.getWriter() != null)
-                this.writer = titleResult.getWriter();
-            if (titleResult.getDirector() != null)
-                this.director = titleResult.getDirector();
-            if (titleResult.getAwards() != null)
-                this.awards = titleResult.getAwards();
-            if (titleResult.getCountry() != null)
-                this.country = titleResult.getCountry();
-            if (titleResult.getType() != null)
-                this.type = titleResult.getType();
-            if (titleResult.getImdbRating() != null)
-                this.rating = titleResult.getImdbRating();
-            if (titleResult.getImdbVotes() != null)
-                this.votes = titleResult.getImdbVotes();
-            if (titleResult.getLanguage() != null)
-                this.language = titleResult.getLanguage();
-            if (titleResult.getMetascore() != null)
-                this.metascore = titleResult.getMetascore();
-            if (titleResult.getPlot() != null)
-                this.plot = titleResult.getPlot();
-            if (titleResult.getPoster() != null)
-                this.poster = titleResult.getPoster();
-            if (titleResult.getRuntime() != null)
-                this.runtime = titleResult.getRuntime();
-            if (titleResult.getYear() != null)
-                this.year = titleResult.getYear();
-
-            this.seasons = new Season[0];
             try {
-                Season[] seasons = new Season[titleResult.getTotalSeasons()];
-                int i = 0;
-                for (SeasonResult seasonResult : titleResult) {
-                    seasons[i] = new Season(seasonResult);
-                    i++;
+                int totalSeasons = title.getTotalSeasons();
+                this.seasons = new Season[totalSeasons];
+                for (int i = 1; i <= totalSeasons; i++) {
+                    this.seasons[i - 1] = new Season(Sirius.getFilmfo().getSeason(imdbId, i));
                 }
-                if (i == seasons.length)
-                    this.seasons = seasons;
-            } catch (RuntimeException ex) {
+            } catch (FilmfoException ex) {
                 ex.printStackTrace();
             }
 
@@ -255,9 +229,7 @@ public class Series {
                     }
                 }
             });
-        } catch (JOMDBUnavailableException ex) {
-            System.err.println(ex.toString());
-        } catch (Exception ex) {
+        } catch (FilmfoException ex) {
             ex.printStackTrace();
         }
     }

@@ -35,50 +35,55 @@ public class SeriesController {
                     Document doc = cursor.next();
 
                     String id = doc.getString("id");
-                    String name = doc.getString("name");
-                    String genre = doc.getString("genre");
-                    String actors = doc.getString("actors");
-                    String writer = doc.getString("writer");
-                    String director = doc.getString("director");
-                    String awards = doc.getString("awards");
-                    String country = doc.getString("country");
-                    String type = doc.getString("type");
-                    String rating = doc.getString("rating");
-                    String votes = doc.getString("votes");
-                    String language = doc.getString("language");
-                    String metascore = doc.getString("metascore");
-                    String plot = doc.getString("plot");
-                    String poster = doc.getString("poster");
-                    String runtime = doc.getString("runtime");
-                    String year = doc.getString("year");
-                    List<Document> seasonsList = (List<Document>) doc.get("seasons");
+                    try {
+                        String name = doc.getString("name");
+                        String type = doc.getString("type");
+                        String year = doc.getString("year");
+                        String[] genres = ((List<String>) doc.get("genres")).toArray(new String[0]);
+                        String[] actors = ((List<String>) doc.get("actors")).toArray(new String[0]);
+                        String[] creators = ((List<String>) doc.get("creators")).toArray(new String[0]);
+                        String[] directors = ((List<String>) doc.get("directors")).toArray(new String[0]);
+                        String awards = doc.getString("awards");
+                        double rating = doc.getDouble("rating");
+                        long ratingCount = doc.getLong("ratingCount");
+                        String[] countries = ((List<String>) doc.get("countries")).toArray(new String[0]);
+                        String[] languages = ((List<String>) doc.get("languages")).toArray(new String[0]);
+                        String plot = doc.getString("plot");
+                        int runtime = doc.getInteger("runtime");
+                        List<Document> seasonsList = (List<Document>) doc.get("seasons");
 
-                    seriesNamesMap.put(id, name);
+                        seriesNamesMap.put(id, name);
 
-                    Season[] seasons = new Season[seasonsList != null ? seasonsList.size() : 0];
-                    if (seasonsList != null) {
-                        for (int i = 0, j = seasons.length; i < j; i++) {
-                            Document seasonDoc = seasonsList.get(i);
-                            List<Document> episodesList = (List<Document>) seasonDoc.get("episodes");
-                            Episode[] episodes = new Episode[episodesList.size()];
+                        Season[] seasons = new Season[seasonsList != null ? seasonsList.size() : 0];
+                        if (seasonsList != null) {
+                            for (int i = 0, j = seasons.length; i < j; i++) {
+                                Document seasonDoc = seasonsList.get(i);
+                                List<Document> episodesList = (List<Document>) seasonDoc.get("episodes");
+                                Episode[] episodes = new Episode[episodesList.size()];
 
-                            for (int k = 0, l = episodes.length; k < l; k++) {
-                                Document episodeDoc = episodesList.get(k);
+                                for (int k = 0, l = episodes.length; k < l; k++) {
+                                    Document episodeDoc = episodesList.get(k);
 
-                                String episodeId = episodeDoc.getString("id");
-                                String episodeName = episodeDoc.getString("name");
-                                String episodeRelease = episodeDoc.getString("release");
-                                String episodeRating = episodeDoc.getString("rating");
-                                String episodeImdbId = episodeDoc.getString("imdb");
+                                    int episodeId = episodeDoc.getInteger("id");
+                                    String episodeName = episodeDoc.getString("name");
+                                    String episodeRelease = episodeDoc.getString("release");
+                                    String episodeImdbId = episodeDoc.getString("imdb");
 
-                                episodes[k] = new Episode(episodeId, episodeName, episodeRelease, episodeRating, episodeImdbId);
+                                    episodes[k] = new Episode(episodeId, episodeName, episodeRelease, episodeImdbId);
+                                }
+
+                                seasons[i] = new Season(seasonDoc.getInteger("id"), episodes);
                             }
-
-                            seasons[i] = new Season(seasonDoc.getString("id"), episodes);
                         }
+                        seriesMap.put(id, new Series(id, name, seasons, type, year, genres, actors, creators, directors, awards, rating, ratingCount, countries, languages, plot, runtime));
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        System.err.println("Failed to load " + id + " from database: " + ex + "\nLoading from Filmfo...");
+                        seriesMap.put(id, new Series(id));
                     }
-                    seriesMap.put(id, new Series(id, name, seasons, genre, actors, writer, director, awards, country, type, rating, votes, language, metascore, plot, poster, runtime, year));
                 }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
     }

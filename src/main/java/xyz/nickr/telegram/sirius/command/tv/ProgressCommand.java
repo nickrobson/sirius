@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.ParseMode;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
-import xyz.nickr.jomdb.JavaOMDB;
+import xyz.nickr.filmfo.Filmfo;
 import xyz.nickr.telegram.sirius.Sirius;
 import xyz.nickr.telegram.sirius.tv.Episode;
 import xyz.nickr.telegram.sirius.tv.Season;
@@ -38,7 +38,7 @@ public class ProgressCommand extends Command {
             return;
         }
         Series series;
-        if (JavaOMDB.IMDB_ID_PATTERN.matcher(args[0]).matches()) {
+        if (Filmfo.IMDB_ID_PATTERN.matcher(args[0]).matches()) {
             series = Sirius.getSeriesController().getSeries(args[0], false);
         } else {
             series = Sirius.getSeriesController().getSeriesByLink(args[0]);

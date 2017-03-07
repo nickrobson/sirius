@@ -4,7 +4,7 @@ import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import lombok.Getter;
-import xyz.nickr.jomdb.JavaOMDB;
+import xyz.nickr.filmfo.Filmfo;
 import xyz.nickr.telegram.sirius.storage.MongoController;
 import xyz.nickr.telegram.sirius.storage.PermissionController;
 import xyz.nickr.telegram.sirius.tv.ProgressController;
@@ -35,7 +35,7 @@ public class Sirius {
     private static ExecutorService executor;
 
     @Getter
-    public static final JavaOMDB omdb = new JavaOMDB();
+    public static final Filmfo filmfo = Filmfo.builder().url("https://nickr.xyz/filmfo/api/v1").build();
 
     public static void main(String[] args) {
         String authToken = args.length > 0 ? args[0] : System.getenv("AUTH_TOKEN");

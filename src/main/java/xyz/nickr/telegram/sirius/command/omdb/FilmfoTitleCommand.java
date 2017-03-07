@@ -20,11 +20,11 @@ import xyz.nickr.telepad.util.Partition;
 /**
  * @author Nick Robson
  */
-public class OmdbTitleCommand extends Command {
+public class FilmfoTitleCommand extends Command {
 
-    public OmdbTitleCommand() {
-        super("omdbtitle");
-        this.setHelp("gets omdbapi.com's information about a show");
+    public FilmfoTitleCommand() {
+        super("title");
+        this.setHelp("gets filmfo information about a show");
         this.setUsage("[name/imdb id]");
     }
 
@@ -49,16 +49,15 @@ public class OmdbTitleCommand extends Command {
             Collator collator = bot.getCollator();
             List<String> pages = new LinkedList<>();
             pages.add(
-                    (collator.equals("N/A", series.getGenre()) ? "" : escape(series.getGenre() + " " + series.getType()) + "\n") +
-                            (collator.equals("N/A", series.getRating()) || collator.equals("N/A", series.getVotes()) ? "" : "_Rating:_ " + escape(series.getRating() + " from " + series.getVotes() + " votes") + "\n") +
-                            (collator.equals("N/A", series.getMetascore()) ? "" : "_Metascore:_ " + escape(series.getMetascore()) + "\n") +
-                            (collator.equals("N/A", series.getRuntime()) ? "" : "_Runtime:_ " + escape(series.getRuntime()) + "\n") +
-                            (collator.equals("N/A", series.getDirector()) ? "" : "_Director:_ " + escape(series.getDirector()) + "\n") +
-                            (collator.equals("N/A", series.getWriter()) ? "" : "_Writer:_ " + escape(series.getWriter()) + "\n") +
-                            (collator.equals("N/A", series.getActors()) ? "" : "_Actors:_ " + escape(series.getActors()) + "\n") +
-                            (collator.equals("N/A", series.getAwards()) ? "" : "_Awards:_ " + escape(series.getAwards()) + "\n") +
-                            (collator.equals("N/A", series.getLanguage()) ? "" : "_Language:_ " + escape(series.getLanguage()) + "\n") +
-                            (collator.equals("N/A", series.getCountry()) ? "" : "_Country:_ " + escape(series.getCountry()))
+                    (escape(String.join(", ", series.getGenres()) + " " + series.getType()) + "\n") +
+                            ("_Rating:_ " + escape(series.getRating() + " from " + series.getRatingCount() + " votes") + "\n") +
+                            ("_Runtime:_ " + escape(String.valueOf(series.getRuntime())) + "\n") +
+                            ("_Director:_ " + escape(String.join(", ", series.getDirectors())) + "\n") +
+                            ("_Writer:_ " + escape(String.join(", ", series.getCreators())) + "\n") +
+                            ("_Actors:_ " + escape(String.join(", ", series.getActors())) + "\n") +
+                            ("_Awards:_ " + escape(series.getAwards()) + "\n") +
+                            ("_Languages:_ " + escape(String.join(", ", series.getLanguages())) + "\n") +
+                            ("_Countries:_ " + escape(String.join(", ", series.getCountries())))
             );
             if (!collator.equals("N/A", series.getPlot())) {
                 pages.add("_Plot:_ " + escape(series.getPlot()));
@@ -67,7 +66,7 @@ public class OmdbTitleCommand extends Command {
                 pages.addAll(getSummaryPages(bot, season));
             }
             PaginatedData paginatedData = new PaginatedData(pages);
-            paginatedData.setHeader("*" + escape(series.getName()) + "*" + escape(" (" + series.getYear() + "), ") + "[" + series.getImdbId() + "](http://www.imdb.com/title/" + series.getImdbId() + ")");
+            paginatedData.setHeader("*" + escape(series.getName()) + "*, [" + series.getImdbId() + "](http://www.imdb.com/title/" + series.getImdbId() + ")");
             paginatedData.setParseMode(ParseMode.MARKDOWN);
             paginatedData.send(0, message);
         }
@@ -82,10 +81,7 @@ public class OmdbTitleCommand extends Command {
         DateTimeFormatter formatter = FORMATTER.withLocale(bot.getLocale());
         for (Episode episode : season.getEpisodes()) {
             List<String> episodeLines = new LinkedList<>();
-            episodeLines.add(String.format("*S%sE%s*: _%s_", escape(season.getId()), escape(episode.getId()), escape(episode.getName())));
-            if (!bot.getCollator().equals("N/A", episode.getRating())) {
-                episodeLines.add(escape(episode.getRating() + "/10"));
-            }
+            episodeLines.add(String.format("*S%sE%s*: _%s_", escape(String.valueOf(season.getId())), escape(String.valueOf(episode.getId())), escape(episode.getName())));
             if (episode.getReleaseDate() != null) {
                 episodeLines.add(formatter.format(episode.getReleaseDate()));
             }

@@ -6,7 +6,7 @@
 
     <groupId>xyz.nickr.telegram</groupId>
     <artifactId>sirius</artifactId>
-    <version>0.0.12</version>
+    <version>0.0.13</version>
     <name>Sirius</name>
 
     <properties>
@@ -21,8 +21,8 @@
         </dependency>
         <dependency>
             <groupId>xyz.nickr</groupId>
-            <artifactId>jomdb</artifactId>
-            <version>4.0.0</version>
+            <artifactId>filmfo</artifactId>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.mongodb</groupId>
