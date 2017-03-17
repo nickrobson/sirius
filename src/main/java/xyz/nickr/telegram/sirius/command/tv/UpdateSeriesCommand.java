@@ -34,12 +34,18 @@ public class UpdateSeriesCommand extends Command {
             try {
                 Set<Series> seriesSet = Sirius.getSeriesController().getSeries();
                 int n = 0, size = seriesSet.size();
-                edit(m, "_Updating..._ " + escape("0/" + size), ParseMode.MARKDOWN);
+                new Thread(() -> {
+                    try {
+                        while (updating) {
+                            edit(m, "_Updating..._ " + escape(n + "/" + size), ParseMode.MARKDOWN);
+                            Thread.sleep(3000);
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }).start();
                 for (Series series : seriesSet) {
                     series.update();
-                    if (++n % 10 == 0) {
-                        edit(m, "_Updating..._ " + escape(n + "/" + size), ParseMode.MARKDOWN);
-                    }
                 }
                 reply(message, "Successfully updated all tracked shows!", ParseMode.NONE);
             } catch (Exception ex) {
