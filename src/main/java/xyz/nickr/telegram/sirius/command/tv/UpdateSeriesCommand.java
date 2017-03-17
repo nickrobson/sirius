@@ -37,7 +37,9 @@ public class UpdateSeriesCommand extends Command {
                 edit(m, "_Updating..._ " + escape("0/" + size), ParseMode.MARKDOWN);
                 for (Series series : seriesSet) {
                     series.update();
-                    edit(m, "_Updating..._ " + escape(++n + "/" + size), ParseMode.MARKDOWN);
+                    if ((n % 5) == 0) {
+                        edit(m, "_Updating..._ " + escape(++n + "/" + size), ParseMode.MARKDOWN);
+                    }
                 }
                 reply(message, "Successfully updated all tracked shows!", ParseMode.NONE);
             } catch (Exception ex) {
