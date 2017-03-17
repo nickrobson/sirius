@@ -39,7 +39,7 @@ public class UpdateSeriesCommand extends Command {
                     series.update();
                     edit(m, "_Updating..._ " + escape(++n + "/" + size), ParseMode.MARKDOWN);
                 }
-                edit(m, "Successfully updated all tracked shows!", ParseMode.NONE);
+                reply(message, "Successfully updated all tracked shows!", ParseMode.NONE);
             } catch (Exception ex) {
                 edit(m, "Failed to update tracked shows - is filmfo down?", ParseMode.NONE);
                 ex.printStackTrace();
