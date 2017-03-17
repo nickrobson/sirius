@@ -1,6 +1,7 @@
 package xyz.nickr.telegram.sirius.command.tv;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.ParseMode;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
@@ -33,11 +34,12 @@ public class UpdateSeriesCommand extends Command {
             Message m = reply(message, "_Updating..._", ParseMode.MARKDOWN);
             try {
                 Set<Series> seriesSet = Sirius.getSeriesController().getSeries();
-                int n = 0, size = seriesSet.size();
+                int size = seriesSet.size();
+                AtomicInteger n = new AtomicInteger(0);
                 new Thread(() -> {
                     try {
                         while (updating) {
-                            edit(m, "_Updating..._ " + escape(n + "/" + size), ParseMode.MARKDOWN);
+                            edit(m, "_Updating..._ " + escape(n.get() + "/" + size), ParseMode.MARKDOWN);
                             Thread.sleep(3000);
                         }
                         edit(m, "Finished!", ParseMode.NONE);
@@ -47,6 +49,7 @@ public class UpdateSeriesCommand extends Command {
                 }).start();
                 for (Series series : seriesSet) {
                     series.update();
+                    n.incrementAndGet();
                 }
                 reply(message, "Successfully updated all tracked shows!", ParseMode.NONE);
             } catch (Exception ex) {
