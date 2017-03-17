@@ -1,5 +1,6 @@
 package xyz.nickr.telegram.sirius.command.tv;
 
+import java.util.Set;
 import pro.zackpollard.telegrambot.api.chat.message.Message;
 import pro.zackpollard.telegrambot.api.chat.message.send.ParseMode;
 import pro.zackpollard.telegrambot.api.chat.message.send.SendableTextMessage;
@@ -31,12 +32,17 @@ public class UpdateSeriesCommand extends Command {
         new Thread(() -> {
             Message m = reply(message, "_Updating..._", ParseMode.MARKDOWN);
             try {
-                for (Series series : Sirius.getSeriesController().getSeries()) {
+                Set<Series> seriesSet = Sirius.getSeriesController().getSeries();
+                int n = 0, size = seriesSet.size();
+                edit(m, "_Updating..._ " + escape("0/" + size), ParseMode.MARKDOWN);
+                for (Series series : seriesSet) {
                     series.update();
+                    edit(m, "_Updating..._ " + escape(++n + "/" + size), ParseMode.MARKDOWN);
                 }
                 edit(m, "Successfully updated all tracked shows!", ParseMode.NONE);
             } catch (Exception ex) {
-                edit(m, "Failed to update tracked shows - is omdbapi.com down?", ParseMode.NONE);
+                edit(m, "Failed to update tracked shows - is filmfo down?", ParseMode.NONE);
+                ex.printStackTrace();
             } finally {
                 updating = false;
             }

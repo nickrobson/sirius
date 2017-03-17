@@ -2,6 +2,7 @@ package xyz.nickr.telegram.sirius.command.omdb;
 
 import java.text.Collator;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,11 +48,11 @@ public class FilmfoTitleCommand extends Command {
                 return;
             }
             Collator collator = bot.getCollator();
-            List<String> pages = new LinkedList<>();
+            List<String> pages = new ArrayList<>();
             pages.add(
                     (escape(String.join(", ", series.getGenres()) + " " + series.getType()) + "\n") +
                             ("_Rating:_ " + escape(series.getRating() + " from " + series.getRatingCount() + " votes") + "\n") +
-                            ("_Runtime:_ " + escape(String.valueOf(series.getRuntime())) + "\n") +
+                            ("_Runtime:_ " + escape(String.valueOf(series.getRuntime())) + "m\n") +
                             ("_Director:_ " + escape(String.join(", ", series.getDirectors())) + "\n") +
                             ("_Writer:_ " + escape(String.join(", ", series.getCreators())) + "\n") +
                             ("_Actors:_ " + escape(String.join(", ", series.getActors())) + "\n") +
@@ -75,19 +76,17 @@ public class FilmfoTitleCommand extends Command {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("d MMM ''uu");
 
     public static List<String> getSummaryPages(TelepadBot bot, Season season) {
-        List<String> seasonLines = new LinkedList<>();
+        List<String> seasonLines = new ArrayList<>();
         if (season == null)
             return seasonLines;
         DateTimeFormatter formatter = FORMATTER.withLocale(bot.getLocale());
         for (Episode episode : season.getEpisodes()) {
-            List<String> episodeLines = new LinkedList<>();
+            List<String> episodeLines = new ArrayList<>();
             episodeLines.add(String.format("*S%sE%s*: _%s_", escape(String.valueOf(season.getId())), escape(String.valueOf(episode.getId())), escape(episode.getName())));
             if (episode.getReleaseDate() != null) {
                 episodeLines.add(formatter.format(episode.getReleaseDate()));
             }
-            if (!bot.getCollator().equals("N/A", episode.getImdbId())) {
-                episodeLines.add(String.format("[link](http://www.imdb.com/title/%s)", episode.getImdbId()));
-            }
+            episodeLines.add(String.format("[link](http://www.imdb.com/title/%s)", episode.getImdbId()));
             seasonLines.add(String.join(", ", episodeLines));
         }
         return Partition.partition(seasonLines, 10)
