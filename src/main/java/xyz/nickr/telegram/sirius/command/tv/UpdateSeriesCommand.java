@@ -40,6 +40,7 @@ public class UpdateSeriesCommand extends Command {
                             edit(m, "_Updating..._ " + escape(n + "/" + size), ParseMode.MARKDOWN);
                             Thread.sleep(3000);
                         }
+                        edit(m, "Finished!", ParseMode.NONE);
                     } catch (Exception ex) {
                         ex.printStackTrace();
                     }
