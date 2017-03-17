@@ -37,7 +37,7 @@ public class UpdateSeriesCommand extends Command {
                 edit(m, "_Updating..._ " + escape("0/" + size), ParseMode.MARKDOWN);
                 for (Series series : seriesSet) {
                     series.update();
-                    if (++n % 5 == 0) {
+                    if (++n % 10 == 0) {
                         edit(m, "_Updating..._ " + escape(n + "/" + size), ParseMode.MARKDOWN);
                     }
                 }
